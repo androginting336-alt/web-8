@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { 
   Microscope, Upload, Scan, FlaskConical, Layers, Sun, Moon, 
   CheckCircle2, Grid, XCircle, MousePointer2, ZoomIn, BookOpen, 
@@ -142,11 +141,12 @@ function SelectionScreen({ onSelect, onLogout, user }) {
   );
 }
 
-// --- 3. MAIN APP (WITH ROBUST GOOGLE SDK) ---
+// --- 3. MAIN APP (MANUAL FETCH ENV VAR) ---
 function AmbasaltMainApp({ mode, onBack, user }) {
   // === CONFIGURATION ===
-  const API_KEY = "AIzaSyDCmG85Gsj89AZN_tZdCXylp4ya914m7yg"; 
-  const genAI = new GoogleGenerativeAI(API_KEY);
+  // PENTING: Saat di Vercel, GANTI baris di bawah ini menjadi:
+  // const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const apiKey = "AIzaSyDCmG85Gsj89AZN_tZdCXylp4ya914m7yg"; 
   // =====================
 
   const isThinSection = mode === 'thin_section';
@@ -156,6 +156,7 @@ function AmbasaltMainApp({ mode, onBack, user }) {
   const [xplImage, setXplImage] = useState(null);
   const [xplBase64, setXplBase64] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
+  const [videoBase64, setVideoBase64] = useState(null);
   
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState("");
@@ -174,7 +175,7 @@ function AmbasaltMainApp({ mode, onBack, user }) {
     mineral: { title: "Mineral Specimen Analysis", color: "emerald" },
   }[mode];
 
-  // --- ROBUST ANALYSIS USING SDK ---
+  // --- MANUAL FETCH ANALYSIS ---
   const analyzeSample = async () => {
     setLoading(true);
     setLoadingStep("Menghubungkan ke Brain AI...");
@@ -182,18 +183,16 @@ function AmbasaltMainApp({ mode, onBack, user }) {
     setResult(null);
     setGridData([]);
 
-    try {
-      // 1. Setup Model (Gemini 1.5 Flash is efficient & smart)
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        generationConfig: { responseMimeType: "application/json" }
-      });
+    // Cek API Key
+    if (!apiKey) {
+        setErrorMsg("API Key hilang! Set Environment Variable: VITE_GEMINI_API_KEY di Vercel.");
+        setLoading(false);
+        return;
+    }
 
-      // 2. Prepare Images
-      const promptParts = [];
-      
+    try {
       const jsonFormat = `
-      OUTPUT JSON STRICTLY:
+      OUTPUT JSON STRICTLY (No Markdown):
       {
         "rockName": "Scientific Name",
         "classificationType": "IUGS/Folk/Dunham",
@@ -216,26 +215,40 @@ function AmbasaltMainApp({ mode, onBack, user }) {
         ]
       }`;
 
-      promptParts.push(`ROLE: Senior Petrographer. TASK: Analyze this geology sample (${config.title}). ${jsonFormat}`);
+      // Construct Payload Manual
+      const parts = [
+          { text: `ROLE: Senior Petrographer. TASK: Analyze this geology sample (${config.title}). ${jsonFormat}` }
+      ];
 
       if (analysisMode === 'image') {
         if (!pplBase64) throw new Error("Mohon upload gambar.");
-        // SDK expects: { inlineData: { data: base64String, mimeType: 'image/jpeg' } }
-        promptParts.push({ inlineData: { data: pplBase64, mimeType: "image/jpeg" }});
-        if (xplBase64) {
-           promptParts.push("Below is the XPL (Cross Polarized) view:");
-           promptParts.push({ inlineData: { data: xplBase64, mimeType: "image/jpeg" }});
-        }
+        parts.push({ inline_data: { mime_type: "image/jpeg", data: pplBase64 } });
+        if (xplBase64) parts.push({ inline_data: { mime_type: "image/jpeg", data: xplBase64 } });
       } else {
-        throw new Error("Video analysis requires file upload API (not supported in this demo). Please use Image mode.");
+         if (!videoBase64) throw new Error("Mohon upload video.");
+         parts.push({ inline_data: { mime_type: "video/mp4", data: videoBase64 } });
       }
 
       setLoadingStep("Menganalisis Petrografi...");
-      const result = await model.generateContent(promptParts);
-      const response = await result.response;
-      const text = response.text();
       
-      const parsed = JSON.parse(text);
+      // FETCH Manual ke Endpoint Google
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: parts }] })
+      });
+
+      const data = await response.json();
+
+      if (data.error) throw new Error(data.error.message || "Gagal terhubung ke AI.");
+      if (!data.candidates || !data.candidates[0].content) throw new Error("AI tidak memberikan respon.");
+
+      const text = data.candidates[0].content.parts[0].text;
+      
+      // Bersihkan markdown jika ada
+      const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleanedText);
+      
       setResult(parsed);
       if (isThinSection && parsed.gridAnalysis) setGridData(parsed.gridAnalysis);
 
@@ -255,6 +268,7 @@ function AmbasaltMainApp({ mode, onBack, user }) {
       const base64String = reader.result.split(',')[1]; // Remove data:image/jpeg;base64, prefix
       if (type === 'ppl') { setPplImage(reader.result); setPplBase64(base64String); }
       if (type === 'xpl') { setXplImage(reader.result); setXplBase64(base64String); }
+      if (type === 'video') { setVideoUrl(URL.createObjectURL(file)); setVideoBase64(base64String); }
       setResult(null); setErrorMsg(null);
     };
     reader.readAsDataURL(file);
@@ -281,7 +295,8 @@ function AmbasaltMainApp({ mode, onBack, user }) {
          <header className="h-16 border-b border-slate-800 bg-slate-900/50 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-10">
             <h2 className="text-sm font-bold text-white flex items-center gap-2"><span className={`w-2 h-2 rounded-full bg-${config.color}-500`}></span>{config.title}</h2>
             <div className="bg-slate-800 rounded-lg p-1 flex">
-               <button className="px-3 py-1.5 rounded-md text-xs font-medium bg-slate-700 text-white shadow">Foto</button>
+               <button onClick={() => setAnalysisMode('image')} className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${analysisMode === 'image' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}>Foto</button>
+               <button onClick={() => setAnalysisMode('video')} className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${analysisMode === 'video' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-slate-200'}`}>Video</button>
             </div>
          </header>
 
@@ -292,21 +307,47 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                   <div className="bg-slate-900 border border-slate-800 rounded-2xl p-1 shadow-xl">
                      <div className="bg-[#0b1120] rounded-xl p-6 relative overflow-hidden">
                         <div className="grid grid-cols-2 gap-4">
-                           <div className={`relative group ${!isThinSection ? 'col-span-2' : ''}`}>
-                              <div className={`relative border-2 border-dashed border-slate-700 bg-slate-800/30 hover:bg-slate-800/50 transition-all flex items-center justify-center overflow-hidden ${isThinSection ? 'rounded-full aspect-square shadow-inner' : 'rounded-xl aspect-video'}`}>
-                                 {pplImage ? <img src={pplImage} className="w-full h-full object-cover" style={isThinSection ? {transform: `scale(1.5) rotate(${stageRotation}deg)`} : {}} /> : <div className="text-center text-slate-500 p-4"><Sun className="mx-auto mb-2 opacity-50" /><span className="text-[10px] font-bold uppercase">Upload {isThinSection ? 'PPL' : 'Foto'}</span></div>}
-                                 {isThinSection && usePointCounting && <InteractiveGrid gridData={gridData} selectedCell={selectedCell} onSelect={setSelectedCell} />}
-                                 <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'ppl')} className="absolute inset-0 opacity-0 cursor-pointer" />
-                              </div>
-                              {isThinSection && <div className="text-center text-[9px] text-slate-500 mt-2">PPL (Plane Polarized)</div>}
-                           </div>
-                           {isThinSection && (
-                              <div className="relative group">
-                                 <div className="relative border-2 border-dashed border-slate-700 bg-slate-800/30 hover:bg-slate-800/50 transition-all flex items-center justify-center overflow-hidden rounded-full aspect-square shadow-inner">
-                                    {xplImage ? <img src={xplImage} className="w-full h-full object-cover" style={{transform: `scale(1.5) rotate(${stageRotation}deg)`}} /> : <div className="text-center text-slate-500"><Moon className="mx-auto mb-2 opacity-50" /><span className="text-[10px] font-bold uppercase">Upload XPL</span></div>}
-                                    <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'xpl')} className="absolute inset-0 opacity-0 cursor-pointer" />
-                                 </div>
-                                 <div className="text-center text-[9px] text-slate-500 mt-2">XPL (Cross Polarized)</div>
+                           {analysisMode === 'image' ? (
+                             <>
+                               <div className={`relative group ${!isThinSection ? 'col-span-2' : ''}`}>
+                                  <div className={`relative border-2 border-dashed border-slate-700 bg-slate-800/30 hover:bg-slate-800/50 transition-all flex items-center justify-center overflow-hidden ${isThinSection ? 'rounded-full aspect-square shadow-inner' : 'rounded-xl aspect-video'}`}>
+                                     {pplImage ? <img src={pplImage} className="w-full h-full object-cover" style={isThinSection ? {transform: `scale(1.5) rotate(${stageRotation}deg)`} : {}} /> : <div className="text-center text-slate-500 p-4"><Sun className="mx-auto mb-2 opacity-50" /><span className="text-[10px] font-bold uppercase">Upload {isThinSection ? 'PPL' : 'Foto'}</span></div>}
+                                     {isThinSection && usePointCounting && <InteractiveGrid gridData={gridData} selectedCell={selectedCell} onSelect={setSelectedCell} />}
+                                     <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'ppl')} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                  </div>
+                                  {isThinSection && <div className="text-center text-[9px] text-slate-500 mt-2">PPL (Plane Polarized)</div>}
+                               </div>
+                               {isThinSection && (
+                                  <div className="relative group">
+                                     <div className="relative border-2 border-dashed border-slate-700 bg-slate-800/30 hover:bg-slate-800/50 transition-all flex items-center justify-center overflow-hidden rounded-full aspect-square shadow-inner">
+                                        {xplImage ? <img src={xplImage} className="w-full h-full object-cover" style={{transform: `scale(1.5) rotate(${stageRotation}deg)`}} /> : <div className="text-center text-slate-500"><Moon className="mx-auto mb-2 opacity-50" /><span className="text-[10px] font-bold uppercase">Upload XPL</span></div>}
+                                        <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'xpl')} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                     </div>
+                                     <div className="text-center text-[9px] text-slate-500 mt-2">XPL (Cross Polarized)</div>
+                                  </div>
+                               )}
+                             </>
+                           ) : (
+                              <div className="col-span-2 relative border-2 border-dashed border-slate-700 bg-slate-800/30 rounded-xl aspect-video flex items-center justify-center overflow-hidden group">
+                                 {videoUrl ? (
+                                    <>
+                                       <video key={videoUrl} src={videoUrl} controls className="w-full h-full object-contain z-10 relative" />
+                                       <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                                          <label className="cursor-pointer flex items-center gap-2 px-3 py-1.5 bg-slate-900/80 backdrop-blur-md border border-slate-700 rounded-lg text-xs font-bold text-white hover:bg-slate-800 transition-colors shadow-lg">
+                                             <Upload size={12} /> Ganti Video
+                                             <input type="file" accept="video/*" onChange={(e) => handleFileUpload(e, 'video')} className="hidden" />
+                                          </label>
+                                       </div>
+                                    </>
+                                 ) : (
+                                    <>
+                                       <div className="text-center text-slate-500">
+                                          <Film className="mx-auto mb-2 opacity-50" />
+                                          <span className="text-[10px] font-bold uppercase tracking-widest block">Upload Video MP4</span>
+                                       </div>
+                                       <input type="file" accept="video/*" onChange={(e) => handleFileUpload(e, 'video')} className="absolute inset-0 opacity-0 cursor-pointer z-30" />
+                                    </>
+                                 )}
                               </div>
                            )}
                         </div>
@@ -319,7 +360,7 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                                  <button onClick={() => setUsePointCounting(!usePointCounting)} className={`w-full py-2 rounded-lg border text-xs font-bold uppercase flex justify-center gap-2 ${usePointCounting ? 'text-amber-500 border-amber-500 bg-amber-500/10' : 'text-slate-400 border-slate-700'}`}><Grid size={14} /> Grid Mode</button>
                               </div>
                            )}
-                           <button onClick={analyzeSample} disabled={loading || !pplImage} className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest text-sm shadow-lg flex items-center justify-center gap-2 transition-all ${loading ? 'bg-slate-800 text-slate-500' : `bg-gradient-to-r from-${config.color}-600 to-${config.color}-500 hover:from-${config.color}-500 text-slate-900`}`}>
+                           <button onClick={analyzeSample} disabled={loading || (!pplImage && !videoUrl)} className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest text-sm shadow-lg flex items-center justify-center gap-2 transition-all ${loading ? 'bg-slate-800 text-slate-500' : `bg-gradient-to-r from-${config.color}-600 to-${config.color}-500 hover:from-${config.color}-500 text-slate-900`}`}>
                               {loading ? <><Scan className="animate-spin" /> {loadingStep}</> : <><Sparkles size={18} /> Analisis AI</>}
                            </button>
                            {errorMsg && <div className="mt-3 p-3 bg-red-900/20 border border-red-900/50 rounded-lg text-xs text-red-400 flex items-center gap-2"><AlertCircle size={14} /> {errorMsg}</div>}
@@ -374,8 +415,8 @@ function AmbasaltMainApp({ mode, onBack, user }) {
          </div>
       </main>
       
-      {/* MINO CHATBOT */}
-      <MinoAssistant result={result} apiKey={API_KEY} />
+      {/* MINO CHATBOT (MANUAL FETCH) */}
+      <MinoAssistant result={result} apiKey={apiKey} />
       <style>{`.custom-scrollbar::-webkit-scrollbar { width: 6px; } .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }`}</style>
     </div>
   );
@@ -402,25 +443,30 @@ function MinoAssistant({ result, apiKey }) {
   const [messages, setMessages] = useState([{ role: 'model', text: 'Halo! Saya MINO. Ada yang bisa dibantu tentang batuan ini?' }]);
   const [isTyping, setIsTyping] = useState(false);
   const endRef = useRef(null);
-  const genAI = new GoogleGenerativeAI(apiKey);
 
   useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [messages, isOpen]);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
-    const newMsgs = [...messages, { role: 'user', text: input }];
+    if (!input.trim() || !apiKey) return;
+    const userMsg = { role: 'user', text: input };
+    const newMsgs = [...messages, userMsg];
     setMessages(newMsgs);
     setInput('');
     setIsTyping(true);
 
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const chat = model.startChat({
-        history: newMsgs.map(m => ({ role: m.role === 'model' ? 'model' : 'user', parts: [{ text: m.text }] }))
+      const prompt = result ? `CONTEXT: User is asking about analyzed rock: ${result.rockName}. Previous chat: ${JSON.stringify(messages)}. USER QUESTION: ${input}. ANSWER SHORTLY.` : `You are Mino, a geology assistant. USER: ${input}`;
+      
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
       });
-      const prompt = result ? `CONTEXT: User is asking about analyzed rock: ${result.rockName}. ANSWER SHORTLY.` : "You are Mino, a geology assistant.";
-      const resultAI = await chat.sendMessage(prompt + " " + input);
-      setMessages([...newMsgs, { role: 'model', text: resultAI.response.text() }]);
+
+      const data = await response.json();
+      const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, saya tidak mengerti.";
+      
+      setMessages([...newMsgs, { role: 'model', text: answer }]);
     } catch (e) {
       setMessages([...newMsgs, { role: 'model', text: "Maaf, koneksi terputus." }]);
     } finally { setIsTyping(false); }
