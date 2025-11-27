@@ -256,7 +256,8 @@ function AmbasaltMainApp({ mode, onBack, user }) {
     let attempt = 0;
     while (attempt <= maxRetries) {
       try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+        // --- PERBAIKAN: Menggunakan model STABIL (gemini-1.5-flash) untuk kunci publik ---
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
