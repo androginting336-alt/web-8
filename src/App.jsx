@@ -218,7 +218,10 @@ function SelectionScreen({ onSelect, onLogout, user }) {
 
 // --- 3. MAIN APP (PROFESSIONAL DASHBOARD) ---
 function AmbasaltMainApp({ mode, onBack, user }) {
-  const apiKey = "AIzaSyC5VlaD1gjizhfv-wOI0zwPP66atEhD16A"; // API Key handled by runtime environment
+  // --- DI SINI KUNCI ANDA ---
+  const apiKey = "AIzaSyDCmG85Gsj89AZN_tZdCXylp4ya914m7yg"; 
+  // -------------------------
+
   const isThinSection = mode === 'thin_section';
 
   // --- STATE ---
@@ -727,5 +730,4 @@ function MinoAssistant({ result, callApi }) {
       </div>
     </>
   );
-
 }
