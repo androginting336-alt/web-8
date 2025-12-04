@@ -222,8 +222,10 @@ function SelectionScreen({ onSelect, onLogout, user }) {
 // --- 3. MAIN APP ---
 function AmbasaltMainApp({ mode, onBack, user }) {
   // === CONFIGURATION ===
-  const apiKey = "AIzaSyAyebr2_x6uNGAyUa7xwfzLyfghbgN9rOM"; 
-  // MENGGUNAKAN MODEL YANG TERBUKTI ADA (DARI KODE AWAL ANDA)
+  // KEY BARU SUDAH DITERAPKAN DI SINI:
+  const apiKey = "AIzaSyBPUEsGT5mF9RfSDCPSCWHQaSsQlLZZn8c"; 
+  
+  // Model tetap (Karena user sebelumnya bilang 404 kalau diganti)
   const MODEL_NAME = "gemini-2.5-flash-preview-09-2025"; 
   // =====================
 
