@@ -220,11 +220,11 @@ function SelectionScreen({ onSelect, onLogout, user }) {
 // --- 3. MAIN APP ---
 function AmbasaltMainApp({ mode, onBack, user }) {
   // === CONFIGURATION ===
-  // KEY TERBARU ANDA
-  const apiKey = "AIzaSyBPUEsGT5mF9RfSDCPSCWHQaSsQlLZZn8c"; 
+  // KEY BARU ANDA (Sudah dimasukkan)
+  const apiKey = "AIzaSyA_BKDwy0-FWm6fudbNogG0qK4baxMiR8I"; 
   
-  // DAFTAR MODEL YANG AKAN DICOBA OTOMATIS (AUTO-SWITCH)
-  // Jika index 0 gagal (404/429), kode akan otomatis mencoba index 1, dst.
+  // SYSTEM AUTO-SWITCH (Tahan Banting)
+  // Sistem akan mencoba model-model ini secara berurutan jika ada yang gagal/404/429
   const AVAILABLE_MODELS = [
     "gemini-1.5-flash",        // Prioritas 1: Model Flash Stabil
     "gemini-1.5-pro",          // Prioritas 2: Model Pro Stabil
