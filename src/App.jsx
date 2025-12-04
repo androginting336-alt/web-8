@@ -71,7 +71,6 @@ function AuthScreen({ onLogin }) {
 
       <div className="relative z-10 bg-slate-900/60 backdrop-blur-2xl border border-slate-700/50 rounded-3xl shadow-2xl w-full max-w-[900px] min-h-[600px] flex overflow-hidden">
         <div className="hidden md:flex w-1/2 bg-gradient-to-br from-slate-800 to-slate-900 p-12 flex-col justify-between relative border-r border-slate-700/50">
-           {/* Subtle Pattern Overlay */}
            <div className="absolute inset-0 opacity-10" style={{
                backgroundImage: `repeating-linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), repeating-linear-gradient(45deg, #000 25%, #1e293b 25%, #1e293b 75%, #000 75%, #000)`,
                backgroundPosition: '0 0, 10px 10px',
@@ -198,7 +197,6 @@ function SelectionScreen({ onSelect, onLogout, user }) {
                   onClick={() => onSelect(card.id)}
                   className={`group relative bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-8 cursor-pointer overflow-hidden transition-all duration-300 hover:bg-slate-800/80 hover:-translate-y-2 hover:shadow-2xl hover:border-${card.color}-500/30`}
                 >
-                   {/* Correct dynamic class handling for hover shadows */}
                    <div className={`absolute top-0 right-0 w-32 h-32 opacity-10 rounded-bl-[100px] -mr-6 -mt-6 transition-transform group-hover:scale-110 bg-${card.color}-500`}></div>
                    
                    <div className={`w-16 h-16 rounded-2xl bg-slate-900 border border-slate-700 flex items-center justify-center mb-6 text-${card.color}-500 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
@@ -222,11 +220,17 @@ function SelectionScreen({ onSelect, onLogout, user }) {
 // --- 3. MAIN APP ---
 function AmbasaltMainApp({ mode, onBack, user }) {
   // === CONFIGURATION ===
-  // KEY BARU:
+  // KEY TERBARU ANDA
   const apiKey = "AIzaSyBPUEsGT5mF9RfSDCPSCWHQaSsQlLZZn8c"; 
   
-  // SAYA KEMBALIKAN KE MODEL STABIL RESMI (VERSI 1.5) agar tidak 404
-  const MODEL_NAME = "gemini-1.5-flash"; 
+  // DAFTAR MODEL YANG AKAN DICOBA OTOMATIS (AUTO-SWITCH)
+  // Jika index 0 gagal (404/429), kode akan otomatis mencoba index 1, dst.
+  const AVAILABLE_MODELS = [
+    "gemini-1.5-flash",        // Prioritas 1: Model Flash Stabil
+    "gemini-1.5-pro",          // Prioritas 2: Model Pro Stabil
+    "gemini-1.0-pro",          // Prioritas 3: Model Lama (Fallback)
+    "gemini-pro"               // Prioritas 4: Alias Umum
+  ];
   // =====================
 
   const isThinSection = mode === 'thin_section';
@@ -258,45 +262,58 @@ function AmbasaltMainApp({ mode, onBack, user }) {
     mineral: { title: "Mineral Specimen Analysis", color: "emerald" },
   }[mode];
 
-  // --- API LOGIC (ANTI-429 RETRY SYSTEM) ---
-  const callGeminiWithRetry = async (payload, maxRetries = 3) => {
-    let attempt = 0;
-    while (attempt <= maxRetries) {
-      try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+  // --- API LOGIC (AUTO MODEL SWITCHING & RETRY) ---
+  const callGeminiWithRetry = async (payload, maxRetries = 2) => {
+    // Loop melalui daftar model yang tersedia
+    for (const modelName of AVAILABLE_MODELS) {
+      console.log(`Mencoba model: ${modelName}`);
+      let attempt = 0;
+      
+      while (attempt <= maxRetries) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
 
-        // Tangani Error HTTP spesifik
-        if (!response.ok) {
-          if (response.status === 429 || response.status === 503) {
-            throw new Error("RATE_LIMIT");
+          if (response.ok) {
+            return await response.json(); // BERHASIL! Kembalikan data.
           }
+
+          // Analisis Error
           if (response.status === 404) {
-             throw new Error("MODEL_NOT_FOUND");
+            console.warn(`Model ${modelName} tidak ditemukan (404). Mencoba model berikutnya...`);
+            break; // Keluar dari loop 'while', lanjut ke model berikutnya di 'for' loop
+          } else if (response.status === 429 || response.status === 503) {
+            // Jika limit habis, throw error agar ditangkap catch di bawah dan di-retry (backoff)
+            throw new Error("RATE_LIMIT");
+          } else {
+            throw new Error(`HTTP Error: ${response.status}`);
           }
-          throw new Error(`HTTP Error: ${response.status}`);
+
+        } catch (error) {
+          attempt++;
+          console.warn(`Model ${modelName} Percobaan ${attempt} gagal: ${error.message}`);
+
+          // Jika error bukan rate limit, atau sudah max retries, lempar error keluar
+          // TAPI jika 404 (break di atas), dia tidak masuk sini.
+          if (error.message !== "RATE_LIMIT" || attempt > maxRetries) {
+             // Jika ini model terakhir dan masih gagal, baru throw error fatal
+             if (modelName === AVAILABLE_MODELS[AVAILABLE_MODELS.length - 1] && attempt > maxRetries) {
+                throw error;
+             }
+             // Jika bukan model terakhir, break untuk ganti model
+             if (error.message !== "RATE_LIMIT") break; 
+          }
+
+          // Backoff delay jika Rate Limit
+          const delay = Math.pow(2, attempt) * 1000;
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
-        
-        return await response.json();
-
-      } catch (error) {
-        attempt++;
-        console.warn(`Percobaan ke-${attempt} gagal: ${error.message}`);
-
-        if (error.message === "MODEL_NOT_FOUND") {
-            throw new Error("Model AI tidak ditemukan (404). Mohon hubungi developer untuk update versi model.");
-        }
-
-        if (attempt > maxRetries) throw error;
-
-        // JEDA WAKTU (Backoff) untuk mengatasi 429
-        const delay = error.message === "RATE_LIMIT" ? Math.pow(2, attempt) * 1500 : 2000;
-        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
+    throw new Error("Semua model AI gagal dihubungi. Cek kuota API Key Anda.");
   };
 
   const handleFileUpload = (e, type) => {
@@ -308,17 +325,16 @@ function AmbasaltMainApp({ mode, onBack, user }) {
       if (type === 'ppl') { setPplImage(reader.result); setPplBase64(base64String); }
       if (type === 'xpl') { setXplImage(reader.result); setXplBase64(base64String); }
       if (type === 'video') { setVideoUrl(URL.createObjectURL(file)); setVideoBase64(base64String); }
-      // Reset state
       setResult(null); setErrorMsg(null); setGridData([]);
     };
     reader.readAsDataURL(file);
   };
 
   const analyzeSample = async () => {
-    if (loading) return; // Mencegah klik ganda
+    if (loading) return; 
 
     setLoading(true);
-    setLoadingStep("Inisialisasi Model AI...");
+    setLoadingStep("Mencari Model AI Terbaik...");
     setResult(null);
     setErrorMsg(null);
     setGridData([]);
@@ -326,7 +342,6 @@ function AmbasaltMainApp({ mode, onBack, user }) {
     if (isThinSection && analysisMode === 'image') setUsePointCounting(true);
 
     try {
-      // Prompt JSON
       const jsonFormat = `
         OUTPUT JSON (Strict, no markdown formatting):
         {
@@ -338,10 +353,9 @@ function AmbasaltMainApp({ mode, onBack, user }) {
           "occurrences": { "indonesia": ["Lokasi1", "Lokasi2"], "world": ["Lokasi1"] },
           "pointCountingStats": "Ringkasan komposisi modal (%)",
           "gridAnalysis": [ 
-              // WAJIB ADA 16 ITEM (Index 0-15) untuk simulasi grid 4x4
               {"index": 0, "mineral": "Nama Mineral", "colorHex": "#KodeWarna", "feature": "Fitur Optik Khas"},
               {"index": 1, "mineral": "...", "colorHex": "...", "feature": "..."},
-              ... (lanjutkan sampai index 15)
+              ... (lanjutkan sampai index 15 untuk total 16 item)
           ], 
           "minerals": [
              { 
@@ -359,21 +373,12 @@ function AmbasaltMainApp({ mode, onBack, user }) {
       `;
 
       let prompt = `PERAN: Ahli Petrografi & Geologi Senior. 
-      
       TUGAS: Analisis sampel geologi ini dengan standar profesional.
-      
       INSTRUKSI KHUSUS:
-      1. KLASIFIKASI: 
-         - Untuk Batuan Beku/Metamorf: Gunakan klasifikasi IUGS (Streckeisen).
-         - Untuk Batuan Karbonat: Gunakan klasifikasi Folk atau Dunham.
-         - Untuk Batuan Sedimen Klastik: Gunakan skala Udden-Wentworth atau klasifikasi Pettijohn.
-      2. KUANTITATIF: Berikan estimasi persentase mineral dalam ANGKA PASTI (Contoh: "35%", bukan "30-40%"). Total komposisi harus mendekati 100%.
-      3. POINT COUNTING (Grid Analysis):
-         - Lakukan simulasi perhitungan titik (point counting) pada grid 4x4 (16 titik) di atas citra.
-         - Anda WAJIB mengisi array 'gridAnalysis' dengan tepat 16 objek (index 0 sampai 15).
-         - Identifikasi mineral dominan yang berada tepat di posisi grid tersebut.
-      4. LOKASI: Sebutkan formasi atau daerah spesifik di Indonesia dimana batuan ini umum ditemukan.
-
+      1. KLASIFIKASI: Gunakan IUGS (Beku/Metamorf), Folk/Dunham (Karbonat), atau Wentworth (Sedimen).
+      2. KUANTITATIF: Berikan estimasi persentase mineral dalam ANGKA PASTI.
+      3. POINT COUNTING: Isi array 'gridAnalysis' dengan 16 objek (index 0-15) sesuai grid 4x4.
+      4. LOKASI: Sebutkan formasi di Indonesia.
       MODE ANALISIS: ${config.title}.
       ${jsonFormat}`;
       
@@ -387,7 +392,7 @@ function AmbasaltMainApp({ mode, onBack, user }) {
          parts.push({ inline_data: { mime_type: "video/mp4", data: videoBase64 } });
       }
 
-      setLoadingStep("Klasifikasi Standar Internasional...");
+      setLoadingStep("Analisis Petrografi AI...");
       
       const data = await callGeminiWithRetry({ 
         contents: [{ parts }], 
@@ -403,8 +408,8 @@ function AmbasaltMainApp({ mode, onBack, user }) {
 
     } catch (err) {
       console.error(err);
-      if (err.message.includes("429") || err.message === "RATE_LIMIT") {
-        setErrorMsg("Terlalu banyak permintaan (429). Mohon tunggu sebentar, sistem sedang mencoba ulang...");
+      if (err.message.includes("RATE_LIMIT")) {
+        setErrorMsg("Terlalu banyak permintaan (429). Sistem sedang sibuk, mohon tunggu 30 detik.");
       } else {
         setErrorMsg(err.message || "Terjadi kesalahan saat analisis.");
       }
@@ -417,7 +422,7 @@ function AmbasaltMainApp({ mode, onBack, user }) {
   return (
     <div className="flex h-screen bg-[#0f172a] text-slate-300 overflow-hidden font-sans">
       
-      {/* SIDEBAR (Mini on Mobile) */}
+      {/* SIDEBAR */}
       <aside className="w-20 md:w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between shrink-0 z-20">
          <div>
             <div className="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-slate-800">
@@ -455,8 +460,6 @@ function AmbasaltMainApp({ mode, onBack, user }) {
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 flex flex-col min-w-0 bg-[#0f172a] relative">
-         
-         {/* Top Header */}
          <header className="h-16 border-b border-slate-800 bg-slate-900/50 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-10">
             <div>
                <h2 className="text-sm font-bold text-white flex items-center gap-2">
@@ -472,17 +475,11 @@ function AmbasaltMainApp({ mode, onBack, user }) {
             </div>
          </header>
 
-         {/* Content Scrollable */}
          <div className="flex-1 overflow-y-auto p-6 scroll-smooth custom-scrollbar">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto">
-               
-               {/* LEFT COLUMN: INPUT & VISUALIZATION */}
                <div className="lg:col-span-5 space-y-6">
-                  {/* Card Container */}
                   <div className="bg-slate-900 border border-slate-800 rounded-2xl p-1 shadow-xl">
                      <div className="bg-[#0b1120] rounded-xl p-6 relative overflow-hidden">
-                        
-                        {/* INPUT VISUALIZER */}
                         <div className="grid grid-cols-2 gap-4">
                            {analysisMode === 'image' ? (
                               <>
@@ -545,7 +542,6 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                            )}
                         </div>
 
-                        {/* CONTROLS AREA */}
                         <div className="mt-6 pt-6 border-t border-slate-800">
                            {isThinSection && analysisMode === 'image' && (
                               <div className="mb-6 space-y-4">
@@ -570,7 +566,6 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                            </button>
                            {errorMsg && <div className="mt-3 p-3 bg-red-900/20 border border-red-900/50 rounded-lg text-xs text-red-400 flex items-center gap-2"><AlertCircle size={14} /> {errorMsg}</div>}
                         </div>
-
                      </div>
                   </div>
                </div>
@@ -597,8 +592,6 @@ function AmbasaltMainApp({ mode, onBack, user }) {
 
                   {result && !loading && (
                      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        
-                        {/* HEADER CARD */}
                         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 relative overflow-hidden">
                            <div className={`absolute top-0 left-0 w-1 h-full bg-${config.color}-500`}></div>
                            <div className="relative z-10">
@@ -606,7 +599,6 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                                  {result.classificationType}
                               </span>
                               <h1 className="text-4xl font-bold text-white mb-6 leading-tight">{result.rockName}</h1>
-                              
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                  <div>
                                     <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2"><AlignLeft size={14}/> Deskripsi</h4>
@@ -628,7 +620,6 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                            </div>
                         </div>
 
-                        {/* GEO LOCATION CARD */}
                         {result.occurrences && (
                            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden group">
                               <div className="absolute -right-10 -bottom-10 text-slate-800 opacity-50 rotate-12 group-hover:rotate-0 transition-transform duration-700">
@@ -657,7 +648,6 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                            </div>
                         )}
 
-                        {/* MINERAL COMPOSITION */}
                         <div className="space-y-4">
                            <h3 className="text-lg font-bold text-white flex items-center gap-2"><Layers size={20} className={`text-${config.color}-500`} /> Komposisi Mineralogi</h3>
                            <div className="grid grid-cols-1 gap-4">
@@ -697,7 +687,6 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                               ))}
                            </div>
                         </div>
-
                      </div>
                   )}
                </div>
@@ -742,8 +731,8 @@ function MinoAssistant({ result, apiKey }) {
   const [isTyping, setIsTyping] = useState(false);
   const endRef = useRef(null);
 
-  // GUNAKAN MODEL YANG SAMA
-  const MODEL_NAME = "gemini-1.5-flash"; 
+  // AUTO SWITCH JUGA UNTUK ASSISTANT
+  const AVAILABLE_MODELS = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro", "gemini-pro"];
 
   useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [messages, isOpen]);
 
@@ -753,26 +742,38 @@ function MinoAssistant({ result, apiKey }) {
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsTyping(true);
+    
+    let answer = "Maaf, sistem sedang sibuk.";
+    
     try {
       let prompt = `PERAN: MINO (AI Geologist). Jawab singkat & ilmiah.`;
       if (result) prompt += ` KONTEKS: Batuan ${result.rockName}, ${result.classificationType}. Mineral: ${result.minerals.map(m=>m.name).join(', ')}.`;
       prompt += ` USER: ${userMsg.text}`;
       
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-      });
+      // LOGIKA SWITCHING
+      for (const modelName of AVAILABLE_MODELS) {
+         try {
+             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+             });
+             
+             if (response.ok) {
+                const data = await response.json();
+                answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, saya tidak mengerti.";
+                break; // Berhasil, keluar loop
+             }
+         } catch (e) {
+             console.warn(`MINO: Gagal pakai model ${modelName}, coba yang lain...`);
+             continue; // Gagal, coba model berikutnya
+         }
+      }
 
-      if (response.status === 429) throw new Error("Terlalu banyak request. Tunggu sebentar.");
-
-      const data = await response.json();
-      const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, saya tidak mengerti.";
-      
       setMessages(prev => [...prev, { role: 'model', text: answer }]);
     } catch (e) { 
         console.error(e);
-        setMessages(prev => [...prev, { role: 'model', text: "Maaf, terjadi kesalahan koneksi atau limit API tercapai." }]); 
+        setMessages(prev => [...prev, { role: 'model', text: "Maaf, terjadi kesalahan koneksi." }]); 
     }
     finally { setIsTyping(false); }
   };
