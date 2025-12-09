@@ -5,8 +5,72 @@ import {
   Activity, MapPin, Globe2, Fingerprint, Clock, Video, Film, PlayCircle,
   FileText, ListChecks, Eye, ChevronDown, ChevronUp, Info, AlignLeft, Ban,
   User, Lock, Mail, Facebook, Github, Linkedin, Chrome, AlertCircle, CheckCircle, ArrowRight,
-  LogOut, Mountain, Gem, ChevronLeft, Map, MessageSquare, Send, X, Sparkles, Bot, Hexagon, LayoutDashboard
+  LogOut, Mountain, Gem, ChevronLeft, Map, MessageSquare, Send, X, Sparkles, Bot, Hexagon, LayoutDashboard, WifiOff
 } from 'lucide-react';
+
+// --- DATABASE OFFLINE (SIMULASI DATA) ---
+// Ini menggantikan otak AI. Kita menyimpan beberapa preset hasil analisis di sini.
+const OFFLINE_DATABASE = {
+  thin_section: [
+    {
+      rockName: "Andesit Piroksen",
+      classificationType: "Batuan Beku Intermediet (IUGS)",
+      description: "Sayatan tipis menunjukkan tekstur porfiritik dengan fenokris plagioklas dan piroksen (augit) yang tertanam dalam massa dasar gelas vulkanik dan mikrolit plagioklas. Terdapat struktur aliran (trachytic texture) pada massa dasar.",
+      paragenesis: "Kristalisasi awal plagioklas dan piroksen pada kondisi tekanan tinggi, diikuti pendinginan cepat magma di permukaan membentuk massa dasar gelas.",
+      petrogenesis: "Berasal dari magma intermediet calc-alkaline di lingkungan busur kepulauan (island arc).",
+      occurrences: { indonesia: ["Gunung Merapi, DIY", "Bandung Selatan"], world: ["Andes, Amerika Selatan"] },
+      minerals: [
+        { name: "Plagioklas (Andesin)", percentage: "45%", description: "Fenokris euhedral, kembaran albit-carlsbad, zoning osilatorik.", detailedOpticalProps: { warnaInterferensi: "Abu-abu orde 1", relief: "Sedang", kembaran: "Albit", habitus: "Tabular" } },
+        { name: "Piroksen (Augit)", percentage: "20%", description: "Fenokris subhedral, warna hijau pucat di PPL, belahan 2 arah 90 derajat.", detailedOpticalProps: { warnaInterferensi: "Orde 2 Bawah", relief: "Tinggi", sudutPemadaman: "Miring (40-45°)" } },
+        { name: "Massa Dasar (Gelas)", percentage: "30%", description: "Isotropik (gelap total di XPL).", detailedOpticalProps: { relief: "Rendah", sifat: "Isotropik" } },
+        { name: "Opak (Magnetit)", percentage: "5%", description: "Hitam di PPL dan XPL.", detailedOpticalProps: { sifat: "Opak" } }
+      ]
+    },
+    {
+      rockName: "Oolitic Limestone",
+      classificationType: "Batuan Sedimen Karbonat (Folk: Oosparite)",
+      description: "Batuan didominasi oleh butiran ooid dengan struktur konsentris yang terkompaksi baik. Semen berupa kalsit spar (sparite) mengisi ruang antar butir. Sedikit fosil foraminifera bentonik.",
+      paragenesis: "Presipitasi ooid di lingkungan laut dangkal berenergi tinggi, diikuti sementasi kalsit spar saat diagenesis.",
+      petrogenesis: "Lingkungan pengendapan laut dangkal tropis (shallow marine shoal).",
+      occurrences: { indonesia: ["Formasi Wonosari, Gunung Kidul", "Papua"], world: ["Bahamas"] },
+      minerals: [
+        { name: "Kalsit (Ooid)", percentage: "70%", description: "Butiran sferis dengan lamela konsentris.", detailedOpticalProps: { warnaInterferensi: "High order white/pastel", relief: "Berubah (Twinkle)" } },
+        { name: "Kalsit (Semen Spar)", percentage: "25%", description: "Kristal anhedral jernih antar butir.", detailedOpticalProps: { relief: "Berubah", kembaran: "Polisintetik" } },
+        { name: "Bioklas", percentage: "5%", description: "Fragmen cangkang fosil.", detailedOpticalProps: { struktur: "Organik" } }
+      ]
+    }
+  ],
+  rock: [
+    {
+      rockName: "Granit Biotit",
+      classificationType: "Batuan Beku Asam (Plutonik)",
+      description: "Batuan berbutir kasar (faneritik), holokristalin, berwarna terang berbintik hitam. Terdiri dominan dari K-Feldspar (merah muda), Kuarsa (transparan/abu-abu), dan Biotit (hitam).",
+      paragenesis: "Pembekuan magma lambat jauh di bawah permukaan bumi (intrusif).",
+      petrogenesis: "Magma felsik hasil pelelehan kerak benua atau diferensiasi magma.",
+      occurrences: { indonesia: ["Kepulauan Riau (Karimun)", "Sulawesi Barat"], world: ["Yosemite, USA"] },
+      minerals: [
+        { name: "K-Feldspar (Orthoclast)", percentage: "40%", description: "Warna merah muda salmon, belahan jelas." },
+        { name: "Kuarsa", percentage: "30%", description: "Tidak berwarna/abu-abu, kilap kaca, pecahan konkoidal." },
+        { name: "Plagioklas", percentage: "15%", description: "Putih susu, striasi pada permukaan belahan." },
+        { name: "Biotit", percentage: "15%", description: "Hitam, bentuk lembaran (mika), kilap mutiara." }
+      ]
+    }
+  ],
+  mineral: [
+    {
+      rockName: "Amethyst (Kecubung)",
+      classificationType: "Mineral Silikat (Tektosilikat)",
+      description: "Varietas kuarsa berwarna ungu. Kristal berbentuk prisma heksagonal dengan terminasi piramidal. Transparan hingga translusen.",
+      paragenesis: "Terbentuk di rongga geode pada batuan vulkanik, warna ungu akibat iradiasi besi (Fe3+).",
+      petrogenesis: "Hidrotermal suhu rendah.",
+      occurrences: { indonesia: ["Kalimantan Barat", "Lampung"], world: ["Brazil", "Uruguay"] },
+      minerals: [
+        { name: "Kuarsa (SiO2)", percentage: "99%", description: "Kekerasan Mohs 7, pecahan konkoidal." },
+        { name: "Inklusi (Goethite)", percentage: "<1%", description: "Jarum-jarum kecoklatan di dalam kristal." }
+      ]
+    }
+  ]
+};
 
 // --- ROOT COMPONENT ---
 export default function App() {
@@ -50,16 +114,16 @@ function AuthScreen({ onLogin }) {
   const handleAuth = (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API delay
+    // Simulate Login Delay
     setTimeout(() => {
       setIsLoading(false);
       onLogin({ name: formData.name || "Geologist", email: formData.email });
-    }, 1500);
+    }, 1000);
   };
 
   return (
     <div className="min-h-screen bg-[#0f172a] relative overflow-hidden flex items-center justify-center p-4">
-      {/* Dynamic CSS Background */}
+      {/* Background Decor */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[120px] animate-pulse"></div>
         <div className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-amber-600/10 rounded-full blur-[120px] animate-pulse" style={{animationDelay: '1s'}}></div>
@@ -84,11 +148,14 @@ function AuthScreen({ onLogin }) {
                  </div>
                  <h1 className="text-2xl font-bold tracking-tight text-white">Ambasalt<span className="text-amber-500">Pro</span></h1>
               </div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 border border-slate-600 text-[10px] font-bold text-slate-300 mb-4">
+                 <WifiOff size={12} className="text-red-400"/> OFFLINE MODE
+              </div>
               <h2 className="text-3xl font-bold leading-tight mb-4 text-slate-100">
-                 Masa Depan <br/> <span className="text-amber-500">Analisis Petrografi</span>
+                 Analisis Petrografi <br/> <span className="text-amber-500">Tanpa Internet</span>
               </h2>
               <p className="text-slate-400 text-sm leading-relaxed">
-                 Platform berbasis AI untuk identifikasi batuan, mineral, dan sayatan tipis dengan akurasi tinggi. Menggunakan standar klasifikasi internasional (IUGS, Folk, Dunham).
+                 Versi offline untuk lapangan (fieldwork). Menggunakan database internal untuk simulasi identifikasi batuan dan mineral.
               </p>
            </div>
            <div className="flex gap-2 relative z-10">
@@ -100,8 +167,8 @@ function AuthScreen({ onLogin }) {
 
         <div className="w-full md:w-1/2 p-12 flex flex-col justify-center bg-slate-900/40 relative">
            <div className="mb-8 text-center">
-              <h3 className="text-2xl font-bold text-white mb-2">{isSignUp ? 'Buat Akun Baru' : 'Selamat Datang'}</h3>
-              <p className="text-slate-400 text-sm">{isSignUp ? 'Mulai perjalanan riset Anda hari ini.' : 'Masuk untuk mengakses dashboard.'}</p>
+              <h3 className="text-2xl font-bold text-white mb-2">{isSignUp ? 'Buat Akun Lokal' : 'Masuk Offline'}</h3>
+              <p className="text-slate-400 text-sm">{isSignUp ? 'Data disimpan di browser.' : 'Akses dashboard tanpa koneksi.'}</p>
            </div>
 
            <form onSubmit={handleAuth} className="space-y-4">
@@ -114,26 +181,19 @@ function AuthScreen({ onLogin }) {
               
               <div className="group bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 flex items-center gap-3 focus-within:border-amber-500/50 focus-within:ring-1 focus-within:ring-amber-500/20 transition-all">
                  <Mail size={18} className="text-slate-500 group-focus-within:text-amber-500 transition-colors" />
-                 <input type="email" placeholder="Email Profesional" className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-slate-500" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                 <input type="email" placeholder="Email (Simulasi)" className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-slate-500" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
               </div>
 
               <div className="group bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3 flex items-center gap-3 focus-within:border-amber-500/50 focus-within:ring-1 focus-within:ring-amber-500/20 transition-all">
                  <Lock size={18} className="text-slate-500 group-focus-within:text-amber-500 transition-colors" />
-                 <input type="password" placeholder="Kata Sandi" className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-slate-500" />
-              </div>
-
-              <div className="flex items-center justify-between text-xs text-slate-400 mt-2">
-                 <label className="flex items-center gap-2 cursor-pointer hover:text-slate-300">
-                    <input type="checkbox" className="rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-0" /> Ingat saya
-                 </label>
-                 <a href="#" className="hover:text-amber-500 transition-colors">Lupa sandi?</a>
+                 <input type="password" placeholder="Kata Sandi (Bebas)" className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-slate-500" />
               </div>
 
               <button 
                 disabled={isLoading}
                 className="w-full mt-6 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-900 font-bold py-3.5 rounded-xl transition-all transform active:scale-[0.98] shadow-lg shadow-amber-900/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {isLoading ? <Scan className="animate-spin" size={18} /> : (isSignUp ? 'Daftar Sekarang' : 'Masuk Dashboard')}
+                {isLoading ? <Scan className="animate-spin" size={18} /> : (isSignUp ? 'Buat Akun Lokal' : 'Masuk Dashboard')}
                 {!isLoading && <ArrowRight size={18} />}
               </button>
            </form>
@@ -149,11 +209,10 @@ function AuthScreen({ onLogin }) {
         </div>
       </div>
       
-      {/* COPYRIGHT FOOTER */}
       <div className="absolute bottom-6 text-slate-600 text-[10px] font-mono tracking-widest uppercase flex items-center gap-2">
-         <span>© 2025 Ambasalt</span>
+         <span>© 2025 Ambasalt Offline</span>
          <span className="w-1 h-1 bg-slate-600 rounded-full"></span>
-         <span>Secure Enclave</span>
+         <span>Local Build v1.0</span>
       </div>
     </div>
   );
@@ -175,6 +234,7 @@ function SelectionScreen({ onSelect, onLogout, user }) {
                 <Hexagon size={18} fill="currentColor" />
              </div>
              <span className="font-bold text-lg tracking-tight text-slate-100">Ambasalt<span className="text-amber-500">Pro</span></span>
+             <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400 border border-slate-700">OFFLINE</span>
           </div>
           <div className="flex items-center gap-4">
              <span className="text-sm text-slate-400 hidden md:inline">Halo, {user?.name || 'Geologist'}</span>
@@ -187,7 +247,7 @@ function SelectionScreen({ onSelect, onLogout, user }) {
        <div className="flex-1 flex flex-col items-center justify-center max-w-6xl mx-auto w-full">
           <div className="text-center mb-16 space-y-4">
              <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">Pilih Metode Analisis</h1>
-             <p className="text-slate-400 text-lg max-w-2xl mx-auto">Pilih modul analisis yang sesuai dengan sampel geologi Anda untuk memulai identifikasi berbasis AI.</p>
+             <p className="text-slate-400 text-lg max-w-2xl mx-auto">Mode Offline aktif. Pilih modul untuk memulai simulasi analisis menggunakan database internal.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full pb-10">
@@ -207,7 +267,7 @@ function SelectionScreen({ onSelect, onLogout, user }) {
                    <p className="text-slate-400 text-sm leading-relaxed mb-8">{card.desc}</p>
                    
                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 group-hover:text-white transition-colors">
-                      Mulai Analisis <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                      Mulai Simulasi <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                    </div>
                 </div>
              ))}
@@ -219,36 +279,19 @@ function SelectionScreen({ onSelect, onLogout, user }) {
 
 // --- 3. MAIN APP ---
 function AmbasaltMainApp({ mode, onBack, user }) {
-  // === CONFIGURATION ===
-  // KEY BARU ANDA (Sudah dimasukkan)
-  const apiKey = "AIzaSyA_BKDwy0-FWm6fudbNogG0qK4baxMiR8I"; 
-  
-  // SYSTEM AUTO-SWITCH (Tahan Banting)
-  // Sistem akan mencoba model-model ini secara berurutan jika ada yang gagal/404/429
-  const AVAILABLE_MODELS = [
-    "gemini-1.5-flash",        // Prioritas 1: Model Flash Stabil
-    "gemini-1.5-pro",          // Prioritas 2: Model Pro Stabil
-    "gemini-1.0-pro",          // Prioritas 3: Model Lama (Fallback)
-    "gemini-pro"               // Prioritas 4: Alias Umum
-  ];
-  // =====================
-
   const isThinSection = mode === 'thin_section';
 
   // --- STATE ---
   const [analysisMode, setAnalysisMode] = useState('image'); 
   const [pplImage, setPplImage] = useState(null);
-  const [pplBase64, setPplBase64] = useState(null);
   const [xplImage, setXplImage] = useState(null);
-  const [xplBase64, setXplBase64] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
-  const [videoBase64, setVideoBase64] = useState(null);
-   
+    
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState("");
   const [result, setResult] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-   
+    
   const [usePointCounting, setUsePointCounting] = useState(false);
   const [stageRotation, setStageRotation] = useState(0);
   const [gridData, setGridData] = useState([]); 
@@ -262,160 +305,74 @@ function AmbasaltMainApp({ mode, onBack, user }) {
     mineral: { title: "Mineral Specimen Analysis", color: "emerald" },
   }[mode];
 
-  // --- API LOGIC (AUTO MODEL SWITCHING & RETRY) ---
-  const callGeminiWithRetry = async (payload, maxRetries = 2) => {
-    // Loop melalui daftar model yang tersedia
-    for (const modelName of AVAILABLE_MODELS) {
-      console.log(`Mencoba model: ${modelName}`);
-      let attempt = 0;
-      
-      while (attempt <= maxRetries) {
-        try {
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-
-          if (response.ok) {
-            return await response.json(); // BERHASIL! Kembalikan data.
-          }
-
-          // Analisis Error
-          if (response.status === 404) {
-            console.warn(`Model ${modelName} tidak ditemukan (404). Mencoba model berikutnya...`);
-            break; // Keluar dari loop 'while', lanjut ke model berikutnya di 'for' loop
-          } else if (response.status === 429 || response.status === 503) {
-            // Jika limit habis, throw error agar ditangkap catch di bawah dan di-retry (backoff)
-            throw new Error("RATE_LIMIT");
-          } else {
-            throw new Error(`HTTP Error: ${response.status}`);
-          }
-
-        } catch (error) {
-          attempt++;
-          console.warn(`Model ${modelName} Percobaan ${attempt} gagal: ${error.message}`);
-
-          // Jika error bukan rate limit, atau sudah max retries, lempar error keluar
-          // TAPI jika 404 (break di atas), dia tidak masuk sini.
-          if (error.message !== "RATE_LIMIT" || attempt > maxRetries) {
-             // Jika ini model terakhir dan masih gagal, baru throw error fatal
-             if (modelName === AVAILABLE_MODELS[AVAILABLE_MODELS.length - 1] && attempt > maxRetries) {
-                throw error;
-             }
-             // Jika bukan model terakhir, break untuk ganti model
-             if (error.message !== "RATE_LIMIT") break; 
-          }
-
-          // Backoff delay jika Rate Limit
-          const delay = Math.pow(2, attempt) * 1000;
-          await new Promise(resolve => setTimeout(resolve, delay));
-        }
-      }
-    }
-    throw new Error("Semua model AI gagal dihubungi. Cek kuota API Key Anda.");
-  };
-
   const handleFileUpload = (e, type) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onloadend = () => {
-      const base64String = reader.result.split(',')[1];
-      if (type === 'ppl') { setPplImage(reader.result); setPplBase64(base64String); }
-      if (type === 'xpl') { setXplImage(reader.result); setXplBase64(base64String); }
-      if (type === 'video') { setVideoUrl(URL.createObjectURL(file)); setVideoBase64(base64String); }
+      if (type === 'ppl') { setPplImage(reader.result); }
+      if (type === 'xpl') { setXplImage(reader.result); }
+      if (type === 'video') { setVideoUrl(URL.createObjectURL(file)); }
       setResult(null); setErrorMsg(null); setGridData([]);
     };
     reader.readAsDataURL(file);
   };
 
+  // --- FUNGSI ANALISIS OFFLINE (MOCKING) ---
   const analyzeSample = async () => {
     if (loading) return; 
-
     setLoading(true);
-    setLoadingStep("Mencari Model AI Terbaik...");
+    setLoadingStep("Memuat Database Offline...");
     setResult(null);
     setErrorMsg(null);
     setGridData([]);
     
-    if (isThinSection && analysisMode === 'image') setUsePointCounting(true);
+    // 1. Simulasi Proses Berpikir
+    setTimeout(() => {
+        setLoadingStep("Mencocokkan Pola Kristal...");
+    }, 1000);
 
-    try {
-      const jsonFormat = `
-        OUTPUT JSON (Strict, no markdown formatting):
-        {
-          "rockName": "Nama Batuan (Sesuai Klasifikasi Internasional)",
-          "classificationType": "Sistem Klasifikasi (IUGS/Folk/Dunham/Wentworth)",
-          "description": "Deskripsi petrografi/litologi detail.",
-          "paragenesis": "Urutan pembentukan/kristalisasi.",
-          "petrogenesis": "Interpretasi genesa.",
-          "occurrences": { "indonesia": ["Lokasi1", "Lokasi2"], "world": ["Lokasi1"] },
-          "pointCountingStats": "Ringkasan komposisi modal (%)",
-          "gridAnalysis": [ 
-              {"index": 0, "mineral": "Nama Mineral", "colorHex": "#KodeWarna", "feature": "Fitur Optik Khas"},
-              {"index": 1, "mineral": "...", "colorHex": "...", "feature": "..."},
-              ... (lanjutkan sampai index 15 untuk total 16 item)
-          ], 
-          "minerals": [
-             { 
-               "name": "Nama Mineral", 
-               "percentage": "Angka Pasti (Contoh: 45%)", 
-               "description": "Deskripsi kehadiran.",
-               "detailedOpticalProps": {
-                  "warnaInterferensi": "...", "polaKembaran": "...", "ekstingsi": "...",
-                  "birefringence": "...", "relief": "...", "cleavageFracture": "...",
-                  "zoning": "...", "habitusShape": "...", "teksturStruktur": "...", "interferenceFigure": "..."
-               }
-             }
-          ]
+    setTimeout(() => {
+        setLoadingStep("Menghitung Persentase Mineral...");
+    }, 2000);
+
+    setTimeout(() => {
+        setLoadingStep("Menyusun Laporan...");
+    }, 3000);
+
+    // 2. Simulasi Hasil (Random Selection dari Database Local)
+    setTimeout(() => {
+        try {
+            // Ambil data yang sesuai mode (rock, thin_section, atau mineral)
+            const availableData = OFFLINE_DATABASE[mode];
+            
+            // Pilih satu secara acak
+            const randomResult = availableData[Math.floor(Math.random() * availableData.length)];
+            
+            // Jika thin section, kita perlu generate fake grid data untuk point counting
+            if (mode === 'thin_section') {
+                const fakeGrid = [];
+                const colors = ['#f59e0b', '#3b82f6', '#10b981', '#64748b']; // Warna random
+                for(let i=0; i<16; i++) {
+                    const randomMin = randomResult.minerals[Math.floor(Math.random() * randomResult.minerals.length)];
+                    fakeGrid.push({
+                        index: i,
+                        mineral: randomMin.name,
+                        colorHex: colors[Math.floor(Math.random() * colors.length)],
+                        feature: "Simulated Feature"
+                    });
+                }
+                setGridData(fakeGrid);
+            }
+
+            setResult(randomResult);
+            setLoading(false);
+
+        } catch (err) {
+            setErrorMsg("Gagal memuat simulasi data.");
+            setLoading(false);
         }
-      `;
-
-      let prompt = `PERAN: Ahli Petrografi & Geologi Senior. 
-      TUGAS: Analisis sampel geologi ini dengan standar profesional.
-      INSTRUKSI KHUSUS:
-      1. KLASIFIKASI: Gunakan IUGS (Beku/Metamorf), Folk/Dunham (Karbonat), atau Wentworth (Sedimen).
-      2. KUANTITATIF: Berikan estimasi persentase mineral dalam ANGKA PASTI.
-      3. POINT COUNTING: Isi array 'gridAnalysis' dengan 16 objek (index 0-15) sesuai grid 4x4.
-      4. LOKASI: Sebutkan formasi di Indonesia.
-      MODE ANALISIS: ${config.title}.
-      ${jsonFormat}`;
-      
-      const parts = [{ text: prompt }];
-      if (analysisMode === 'image') {
-         if (!pplBase64) throw new Error("Upload gambar utama.");
-         parts.push({ inline_data: { mime_type: "image/jpeg", data: pplBase64 } });
-         if (xplBase64) parts.push({ inline_data: { mime_type: "image/jpeg", data: xplBase64 } });
-      } else {
-         if (!videoBase64) throw new Error("Upload video.");
-         parts.push({ inline_data: { mime_type: "video/mp4", data: videoBase64 } });
-      }
-
-      setLoadingStep("Analisis Petrografi AI...");
-      
-      const data = await callGeminiWithRetry({ 
-        contents: [{ parts }], 
-        generationConfig: { responseMimeType: "application/json" } 
-      });
-      
-      if (!data.candidates) throw new Error("Gagal mendapatkan respons AI. Cek koneksi atau coba gambar lain.");
-      
-      const text = data.candidates[0].content.parts[0].text;
-      const parsed = JSON.parse(text);
-      setResult(parsed);
-      if (isThinSection && parsed.gridAnalysis) setGridData(parsed.gridAnalysis);
-
-    } catch (err) {
-      console.error(err);
-      if (err.message.includes("RATE_LIMIT")) {
-        setErrorMsg("Terlalu banyak permintaan (429). Sistem sedang sibuk, mohon tunggu 30 detik.");
-      } else {
-        setErrorMsg(err.message || "Terjadi kesalahan saat analisis.");
-      }
-    } finally {
-      setLoading(false);
-    }
+    }, 4000); // Total waktu tunggu 4 detik
   };
 
   // --- UI RENDER ---
@@ -433,7 +390,7 @@ function AmbasaltMainApp({ mode, onBack, user }) {
             </div>
             
             <div className="p-4 space-y-2">
-               <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 px-2 hidden md:block mb-2">Workspace</div>
+               <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 px-2 hidden md:block mb-2">Workspace (Offline)</div>
                <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-800/50 text-white border border-slate-700/50 hover:bg-slate-800 transition-all">
                   <LayoutDashboard size={18} className={`text-${config.color}-500`} />
                   <span className="hidden md:block text-sm font-medium">Dashboard</span>
@@ -452,7 +409,7 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                </div>
                <div className="hidden md:block overflow-hidden">
                   <div className="text-xs font-bold text-white truncate">{user?.name || 'Geologist'}</div>
-                  <div className="text-[10px] text-slate-500">Pro License</div>
+                  <div className="text-[10px] text-slate-500">Offline User</div>
                </div>
             </div>
          </div>
@@ -558,11 +515,11 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                            )}
 
                            <button 
-                              onClick={analyzeSample}
-                              disabled={loading || (!pplImage && !videoUrl)}
-                              className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest text-sm shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-[0.98] ${loading ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : `bg-gradient-to-r from-${config.color}-600 to-${config.color}-500 hover:from-${config.color}-500 hover:to-${config.color}-400 text-slate-900`}`}
+                             onClick={analyzeSample}
+                             disabled={loading || (!pplImage && !videoUrl)}
+                             className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest text-sm shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-[0.98] ${loading ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : `bg-gradient-to-r from-${config.color}-600 to-${config.color}-500 hover:from-${config.color}-500 hover:to-${config.color}-400 text-slate-900`}`}
                            >
-                              {loading ? <><Scan className="animate-spin" /> {loadingStep}</> : <><Sparkles size={18} /> Mulai Analisis AI</>}
+                              {loading ? <><Scan className="animate-spin" /> {loadingStep}</> : <><Sparkles size={18} /> Simulasi Analisis AI</>}
                            </button>
                            {errorMsg && <div className="mt-3 p-3 bg-red-900/20 border border-red-900/50 rounded-lg text-xs text-red-400 flex items-center gap-2"><AlertCircle size={14} /> {errorMsg}</div>}
                         </div>
@@ -578,7 +535,7 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                            <div className={`w-16 h-16 border-4 border-slate-800 border-t-${config.color}-500 rounded-full animate-spin`}></div>
                            <div className={`absolute inset-0 flex items-center justify-center text-${config.color}-500`}><Bot size={20} /></div>
                         </div>
-                        <p className="mt-4 text-sm font-mono text-slate-500 animate-pulse">AI sedang menganalisis sampel...</p>
+                        <p className="mt-4 text-sm font-mono text-slate-500 animate-pulse">{loadingStep}</p>
                      </div>
                   )}
 
@@ -586,7 +543,7 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                      <div className="h-full min-h-[400px] flex flex-col items-center justify-center bg-slate-900/30 rounded-2xl border border-slate-800 border-dashed text-slate-600">
                         <FlaskConical size={48} strokeWidth={1} className="mb-4 opacity-50" />
                         <p className="text-lg font-medium">Menunggu Data Sampel</p>
-                        <p className="text-sm">Unggah gambar atau video untuk memulai analisis.</p>
+                        <p className="text-sm">Unggah gambar atau video untuk memulai simulasi.</p>
                      </div>
                   )}
 
@@ -654,8 +611,8 @@ function AmbasaltMainApp({ mode, onBack, user }) {
                               {result.minerals?.map((m, i) => (
                                  <div key={i} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-600 transition-colors">
                                     <div 
-                                       className="p-4 flex items-center justify-between cursor-pointer bg-slate-800/30" 
-                                       onClick={() => setExpandedMineralIndex(expandedMineralIndex === i ? null : i)}
+                                      className="p-4 flex items-center justify-between cursor-pointer bg-slate-800/30" 
+                                      onClick={() => setExpandedMineralIndex(expandedMineralIndex === i ? null : i)}
                                     >
                                        <div className="flex items-center gap-4">
                                           <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 ${expandedMineralIndex === i ? `bg-${config.color}-500 text-slate-900` : 'bg-slate-800'}`}>
@@ -694,7 +651,7 @@ function AmbasaltMainApp({ mode, onBack, user }) {
          </div>
       </main>
 
-      <MinoAssistant result={result} apiKey={apiKey} />
+      <MinoAssistantOffline result={result} />
       
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -723,16 +680,13 @@ const InteractiveGrid = ({ gridData, selectedCell, onSelect }) => (
     </div>
 );
 
-// --- MINO ASSISTANT ---
-function MinoAssistant({ result, apiKey }) {
+// --- MINO ASSISTANT (OFFLINE VERSION) ---
+function MinoAssistantOffline({ result }) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([{ role: 'model', text: 'Halo! Saya MINO, asisten geologi Anda. Ada yang bisa saya bantu?' }]);
+  const [messages, setMessages] = useState([{ role: 'model', text: 'Halo! Saya MINO (Offline Mode). Saya hanya bisa menjawab pertanyaan dasar tentang hasil analisis saat ini.' }]);
   const [isTyping, setIsTyping] = useState(false);
   const endRef = useRef(null);
-
-  // AUTO SWITCH JUGA UNTUK ASSISTANT
-  const AVAILABLE_MODELS = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro", "gemini-pro"];
 
   useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [messages, isOpen]);
 
@@ -743,48 +697,43 @@ function MinoAssistant({ result, apiKey }) {
     setInput('');
     setIsTyping(true);
     
-    let answer = "Maaf, sistem sedang sibuk.";
-    
-    try {
-      let prompt = `PERAN: MINO (AI Geologist). Jawab singkat & ilmiah.`;
-      if (result) prompt += ` KONTEKS: Batuan ${result.rockName}, ${result.classificationType}. Mineral: ${result.minerals.map(m=>m.name).join(', ')}.`;
-      prompt += ` USER: ${userMsg.text}`;
-      
-      // LOGIKA SWITCHING
-      for (const modelName of AVAILABLE_MODELS) {
-         try {
-             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-             });
-             
-             if (response.ok) {
-                const data = await response.json();
-                answer = data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, saya tidak mengerti.";
-                break; // Berhasil, keluar loop
-             }
-         } catch (e) {
-             console.warn(`MINO: Gagal pakai model ${modelName}, coba yang lain...`);
-             continue; // Gagal, coba model berikutnya
-         }
-      }
+    // LOGIKA CHATBOT OFFLINE SEDERHANA
+    setTimeout(() => {
+        let answer = "Maaf, saya tidak mengerti pertanyaan itu dalam mode offline.";
+        const lowInput = userMsg.text.toLowerCase();
 
-      setMessages(prev => [...prev, { role: 'model', text: answer }]);
-    } catch (e) { 
-        console.error(e);
-        setMessages(prev => [...prev, { role: 'model', text: "Maaf, terjadi kesalahan koneksi." }]); 
-    }
-    finally { setIsTyping(false); }
+        if (lowInput.includes("halo") || lowInput.includes("hi")) {
+            answer = "Halo! Silakan upload sampel batuan Anda.";
+        } else if (!result) {
+            answer = "Silakan lakukan analisis sampel terlebih dahulu agar saya bisa memberikan data.";
+        } else {
+            if (lowInput.includes("nama") || lowInput.includes("batuan apa")) {
+                answer = `Berdasarkan analisis, ini adalah ${result.rockName} (${result.classificationType}).`;
+            } else if (lowInput.includes("lokasi") || lowInput.includes("dimana")) {
+                answer = `Di Indonesia, batuan ini bisa ditemukan di: ${result.occurrences.indonesia.join(", ")}.`;
+            } else if (lowInput.includes("mineral") || lowInput.includes("komposisi")) {
+                answer = `Mineral utamanya adalah: ${result.minerals.map(m => m.name).join(", ")}.`;
+            } else if (lowInput.includes("deskripsi")) {
+                answer = result.description;
+            } else if (lowInput.includes("terbentuk") || lowInput.includes("genesa")) {
+                answer = result.petrogenesis;
+            } else {
+                answer = `Saya mendeteksi ${result.rockName}. Anda bisa bertanya tentang "lokasi", "mineral", atau "genesa".`;
+            }
+        }
+
+        setMessages(prev => [...prev, { role: 'model', text: answer }]);
+        setIsTyping(false);
+    }, 1000);
   };
 
   return (
     <>
       <button onClick={() => setIsOpen(!isOpen)} className={`fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 z-50 hover:scale-110 ${isOpen ? 'bg-slate-700 rotate-90 text-slate-300' : 'bg-gradient-to-tr from-amber-600 to-amber-500 text-slate-900'}`}>{isOpen ? <X /> : <Bot size={28} />}</button>
       <div className={`fixed bottom-24 right-6 w-80 md:w-96 bg-[#1e293b] border border-slate-700 rounded-2xl shadow-2xl flex flex-col transition-all duration-300 origin-bottom-right z-50 ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`} style={{ height: '500px' }}>
-        <div className="p-4 border-b border-slate-700 bg-slate-800 rounded-t-2xl flex items-center gap-3"><div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-slate-900"><Sparkles size={16} /></div><div><h3 className="text-sm font-bold text-white">MINO Assistant</h3><p className="text-[10px] text-emerald-400">● Online</p></div></div>
+        <div className="p-4 border-b border-slate-700 bg-slate-800 rounded-t-2xl flex items-center gap-3"><div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-slate-900"><WifiOff size={16} /></div><div><h3 className="text-sm font-bold text-white">MINO Assistant</h3><p className="text-[10px] text-slate-400">● Offline Mode</p></div></div>
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0f172a] custom-scrollbar">{messages.map((m, i) => (<div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] p-3 rounded-2xl text-xs leading-relaxed ${m.role === 'user' ? 'bg-amber-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 rounded-tl-none'}`}>{m.text}</div></div>))}{isTyping && <div className="text-xs text-slate-500 ml-4">MINO sedang mengetik...</div>}<div ref={endRef} /></div>
-        <div className="p-3 border-t border-slate-700 bg-slate-800 rounded-b-2xl"><form onSubmit={(e) => {e.preventDefault(); handleSend();}} className="flex gap-2"><input value={input} onChange={e=>setInput(e.target.value)} placeholder="Tanya MINO..." className="flex-1 bg-slate-900 border border-slate-600 rounded-xl px-4 py-2 text-xs text-white focus:border-amber-500 outline-none" /><button disabled={!input.trim() || isTyping} className="bg-amber-500 text-slate-900 p-2 rounded-xl hover:bg-amber-400 disabled:opacity-50"><Send size={16} /></button></form></div>
+        <div className="p-3 border-t border-slate-700 bg-slate-800 rounded-b-2xl"><form onSubmit={(e) => {e.preventDefault(); handleSend();}} className="flex gap-2"><input value={input} onChange={e=>setInput(e.target.value)} placeholder="Tanya tentang hasil..." className="flex-1 bg-slate-900 border border-slate-600 rounded-xl px-4 py-2 text-xs text-white focus:border-amber-500 outline-none" /><button disabled={!input.trim() || isTyping} className="bg-amber-500 text-slate-900 p-2 rounded-xl hover:bg-amber-400 disabled:opacity-50"><Send size={16} /></button></form></div>
       </div>
     </>
   );
