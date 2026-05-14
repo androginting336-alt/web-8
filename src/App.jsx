@@ -1039,9 +1039,9 @@ function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isB
                     throw new Error("API Key tidak ditemukan. Pastikan sudah diatur di Vercel atau file .env");
                 }
 
-                // PENYESUAIAN MODEL AI: 
-                // Vercel/Lokal (Publik) menggunakan gemini-1.5-flash
-                // Lingkungan Canvas ini menggunakan gemini-2.5-flash-preview-09-2025
+                // PENYESUAIAN MODEL AI CERDAS: 
+                // Jika sedang di Vercel (ada finalKey), pakai model stabil publik (1.5-flash)
+                // Jika sedang di Canvas (finalKey kosong), pakai model preview khusus Canvas
                 const modelName = finalKey ? "gemini-1.5-flash" : "gemini-2.5-flash-preview-09-2025";
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${finalKey}`;
                 const mimeType = pplImage.split(';')[0].split(':')[1];
