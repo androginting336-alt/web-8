@@ -9,7 +9,6 @@ import {
   Search, Compass, Flame, Heart, Target, Zap, ShieldCheck
 } from 'lucide-react';
 
-// --- DATABASE OFFLINE (SIMULASI DATA UNTUK HEMAT API) ---
 const OFFLINE_DATABASE = {
   thin_section: [
     {
@@ -72,25 +71,41 @@ const OFFLINE_DATABASE = {
   ]
 };
 
-// --- MENGAMBIL API KEY DARI .ENV DENGAN AMAN UNTUK VERCEL ---
-// Pengecekan import.meta dengan try-catch agar tidak error saat di-compile
-const getApiKey = () => {
-    try {
-        if (typeof import.meta !== 'undefined' && import.meta.env) {
-            return import.meta.env.VITE_GEMINI_API_KEY || "";
-        }
-    } catch (e) {}
-    return "";
+// --- API KEY TERTANAM PERMANEN ---
+const PERMANENT_GEMINI_API_KEY = "AIzaSyB04hmAibpDtRDiZmPwXUUGt2CnQFefp0A";
+
+// --- DYNAMIC MINERAL COLOR MAPPER FOR REALISTIC OPTICAL FEEL ---
+const getMineralColor = (mineralName) => {
+  const name = mineralName.toLowerCase();
+  if (name.includes('plagioklas') || name.includes('andesin') || name.includes('feldspar')) {
+    return 'rgba(215, 220, 230, 0.45)'; // Putih abu-abu khas kembaran albit
+  }
+  if (name.includes('piroksen') || name.includes('augit')) {
+    return 'rgba(105, 140, 95, 0.5)'; // Hijau pucat PPL / Orde tinggi XPL
+  }
+  if (name.includes('kuarsa') || name.includes('quartz')) {
+    return 'rgba(240, 245, 255, 0.2)'; // Sangat jernih transparan
+  }
+  if (name.includes('biotit') || name.includes('mika')) {
+    return 'rgba(160, 110, 60, 0.55)'; // Cokelat pleokroik kuat
+  }
+  if (name.includes('kalsit') || name.includes('limestone') || name.includes('ooid')) {
+    return 'rgba(235, 225, 205, 0.5)'; // Krem kembaran twinkling
+  }
+  if (name.includes('gelas') || name.includes('massa dasar')) {
+    return 'rgba(40, 40, 40, 0.6)'; // Gelap isotropik
+  }
+  if (name.includes('opak') || name.includes('magnetit')) {
+    return 'rgba(15, 15, 15, 0.85)'; // Opak hitam pekat
+  }
+  return 'rgba(201, 166, 107, 0.45)'; // Default emas estetik
 };
-const GLOBAL_API_KEY = getApiKey();
 
 // --- ROOT COMPONENT ---
 export default function App() {
-  const [screen, setScreen] = useState('auth'); // auth, dashboard, selection, app
+  const [screen, setScreen] = useState('auth'); 
   const [appMode, setAppMode] = useState('thin_section'); 
   const [user, setUser] = useState(null);
-  
-  // STATE TEMA: False = Earth Mode (Cokelat), True = Black Mode (Hitam Pekat)
   const [isBlackMode, setIsBlackMode] = useState(false);
   const toggleTheme = () => setIsBlackMode(!isBlackMode);
 
@@ -113,7 +128,6 @@ export default function App() {
   const handleGoToSelection = () => setScreen('selection');
   const handleBackToDashboard = () => setScreen('dashboard');
 
-  // Variabel Tema Global
   const mainBg = isBlackMode ? 'bg-[#000000]' : 'bg-[#1A1815]';
   const textMain = isBlackMode ? 'text-zinc-200' : 'text-[#F5F1E8]';
 
@@ -167,7 +181,6 @@ function AuthScreen({ onLogin, isBlackMode }) {
       clock = new THREE.Clock();
 
       scene = new THREE.Scene();
-      // Update fog based on theme
       scene.fog = new THREE.FogExp2(isBlackMode ? 0x000000 : 0x1A1815, 0.02);
 
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -438,6 +451,7 @@ function AuthScreen({ onLogin, isBlackMode }) {
                   </div>
                   <h1 className="text-2xl md:text-3xl font-bold tracking-wide text-white mb-2">Ambasalt</h1>
                   <p className="text-xs md:text-sm text-[#F5F1E8]/70 font-light">Rock Mineral and Thin Section Analysis</p>
+                  <p className="text-[10px] text-[#C9A66B]/80 font-mono tracking-wider mt-1 uppercase">Oleh Andro</p>
               </div>
 
               <form id="loginForm" onSubmit={handleLogin} className="space-y-5">
@@ -581,7 +595,7 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
       color: "hover:border-emerald-500/50 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)]",
       btnColor: "text-emerald-500",
       modalData: [
-        { label: "Struktur Kristal", text: "Menentukan bentuk fisik. Intan (sangat keras) dan grafit pensil (sangat lunak) terbuat dari unsur yang sama: Karbon." },
+        { label: "Struktur Kristal", text: "Menentukan bentuk fisik. Intan (sangat keras) dan grafit penyusun (sangat lunak) terbuat dari unsur yang sama: Karbon." },
         { label: "Sifat Optik/Fisik", text: "Dikenali dari warna, kilap (logam/non-logam), cerat, belahan, dan tingkat kekerasan (Skala Mohs)." },
         { label: "Silikat", text: "Kelompok mineral paling umum di Bumi (mencapai 90% dari kerak bumi). Termasuk Kuarsa dan Feldspar." }
       ]
@@ -633,7 +647,7 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
                 <h1 className="font-bold text-xl tracking-tight flex items-center gap-2">
                    GeoExplorer
                 </h1>
-                <p className="text-[10px] text-[#C9A66B] font-mono tracking-widest uppercase mt-0.5">Pusat Pengetahuan</p>
+                <p className="text-[10px] text-[#C9A66B] font-mono tracking-widest uppercase mt-0.5">Pusat Pengetahuan Ambasalt</p>
              </div>
           </div>
           <div className="flex items-center gap-4 md:gap-6">
@@ -659,7 +673,7 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
           {/* Hero Section */}
           <div className="text-center max-w-4xl mx-auto mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#C9A66B]/30 bg-[#C9A66B]/10 text-[#C9A66B] text-xs font-bold uppercase tracking-wider mb-6">
-                <Sparkles size={14} /> Selamat Datang di Dunia Geologi
+                <Sparkles size={14} /> Created by Andro
              </div>
              <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
                 Membaca Sejarah Bumi <br/> Melalui <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A66B] to-[#8A6E40]">Batuan</span>
@@ -767,7 +781,7 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
                 </p>
              </div>
 
-             {/* Salam Hangat */}
+             {/* Salam Hangat & Informasi Pencipta */}
              <div className={`md:col-span-4 ${isBlackMode ? 'bg-zinc-900' : 'bg-gradient-to-b from-[#C9A66B]/10 to-[#1A1815]'} border border-[#C9A66B]/30 rounded-3xl p-8 md:p-10 flex flex-col justify-center text-center`}>
                 <Heart className="mx-auto text-[#C9A66B] mb-6 animate-bounce" size={40} />
                 <h3 className="text-xl font-bold mb-4">Salam Hangat!</h3>
@@ -776,8 +790,9 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
                 </p>
                 <div className="mt-auto">
                    <div className="w-12 h-1 bg-[#C9A66B] mx-auto mb-4 rounded-full"></div>
-                   <p className="font-bold text-[#C9A66B] tracking-widest text-sm uppercase">Tim Pengembang</p>
-                   <p className="text-xs mt-1 opacity-80">Geologi Ambasalt ITERA</p>
+                   <p className="font-bold text-[#C9A66B] tracking-widest text-sm uppercase">Pencipta & Pengembang</p>
+                   <p className="text-base font-semibold mt-1 text-white">Andro</p>
+                   <p className="text-xs mt-0.5 opacity-80">Geologi Ambasalt ITERA</p>
                 </div>
              </div>
           </div>
@@ -792,13 +807,16 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
                 </div>
                 <div>
                     <h4 className="font-bold text-lg tracking-wide">Ambasalt Web App</h4>
-                    <p className="opacity-50 text-xs mt-1 uppercase tracking-wider">Portal Eksplorasi Geologi</p>
+                    <p className="opacity-50 text-xs mt-1 uppercase tracking-wider">Created by Andro</p>
                 </div>
              </div>
              
              <div className="text-center md:text-right">
                 <p className="opacity-70 text-sm mb-1">
-                   Dikembangkan untuk studi kebumian oleh <span className="font-bold text-[#C9A66B]">Tim Geologi Ambasalt ITERA</span>
+                   Diciptakan dan dikembangkan untuk studi kebumian oleh <span className="font-bold text-[#C9A66B]">Andro</span>
+                </p>
+                <p className="text-xs opacity-50">
+                   Tim Geologi Ambasalt Institut Teknologi Sumatera (ITERA)
                 </p>
                 <div className="flex items-center justify-center md:justify-end gap-4 mt-3">
                    <a href="#" className="opacity-40 hover:opacity-100 transition-colors" title="Website"><Globe2 size={16}/></a>
@@ -921,16 +939,16 @@ function SelectionScreen({ onSelect, onBack, onLogout, user, isBlackMode, toggle
   );
 }
 
-// --- KOMPONEN BANTUAN UNTUK MAIN APP (INTERACTIVE GRID) ---
+// --- KOMPONEN INTERACTIVE GRID 8x8 (64 SEL) UNTUK TITIK POINT COUNTING AKURAT ---
 function InteractiveGrid({ gridData, selectedCell, onSelect }) {
   if (!gridData || gridData.length === 0) return null;
   return (
-    <div className="absolute inset-0 grid grid-cols-4 grid-rows-4 pointer-events-auto z-20">
+    <div className="absolute inset-0 grid grid-cols-8 grid-rows-8 pointer-events-auto z-20">
       {gridData.map((cell) => (
          <div
            key={cell.index}
            onClick={() => onSelect(cell.index)}
-           className={`border border-white/20 hover:bg-white/20 cursor-pointer transition-all ${selectedCell === cell.index ? 'bg-white/30 border-white' : ''}`}
+           className={`border-[0.5px] border-white/15 hover:bg-white/20 cursor-pointer transition-all ${selectedCell === cell.index ? 'ring-2 ring-[#C9A66B] z-30' : ''}`}
            style={{ backgroundColor: selectedCell === cell.index ? cell.colorHex : 'transparent' }}
          />
       ))}
@@ -957,9 +975,6 @@ function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isB
   const [stageRotation, setStageRotation] = useState(0);
   const [gridData, setGridData] = useState([]); 
   const [selectedCell, setSelectedCell] = useState(null); 
-  
-  // STATE BARU UNTUK OPTIMASI API KEY
-  const [useApi, setUseApi] = useState(false); // False = Offline (Hemat), True = Live API
 
   // Config Themes
   const sidebarBg = isBlackMode ? 'bg-zinc-950' : 'bg-[#2E2A24]/60';
@@ -985,6 +1000,29 @@ function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isB
     reader.readAsDataURL(file);
   };
 
+  // --- FUNGSI UTAMA DEFENSIF: FETCH DENGAN EXPONENTIAL BACKOFF RETRY ---
+  const fetchWithRetry = async (url, options, retries = 5, delay = 1000) => {
+    try {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        if ((response.status === 429 || response.status === 503 || response.status === 500) && retries > 0) {
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return fetchWithRetry(url, options, retries - 1, delay * 2);
+        }
+        const errorDetail = await response.json().catch(() => ({}));
+        const detailMsg = errorDetail?.error?.message || `HTTP error! status: ${response.status}`;
+        throw new Error(detailMsg);
+      }
+      return response;
+    } catch (error) {
+      if (retries > 0) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return fetchWithRetry(url, options, retries - 1, delay * 2);
+      }
+      throw error;
+    }
+  };
+
   const analyzeSample = async () => {
     if (loading) return; 
     setLoading(true);
@@ -992,63 +1030,26 @@ function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isB
     setResult(null);
     setErrorMsg(null);
     setGridData([]);
-    setSelectedCell(null); // Reset pilihan sel saat analisis baru
+    setSelectedCell(null); 
     
     setTimeout(() => setLoadingStep("Mencocokkan Pola Kristal..."), 1000);
     setTimeout(() => setLoadingStep("Menghitung Persentase Mineral..."), 2000);
     setTimeout(() => setLoadingStep("Menyusun Laporan..."), 3000);
 
     setTimeout(async () => {
-        if (!useApi) {
-            // MODE HEMAT API (MENGGUNAKAN SIMULASI DATABASE OFFLINE)
-            try {
-                const availableData = OFFLINE_DATABASE[mode];
-                const randomResult = availableData[Math.floor(Math.random() * availableData.length)];
-                
-                if (mode === 'thin_section') {
-                    const fakeGrid = [];
-                    const colors = ['rgba(201,166,107,0.5)', 'rgba(92,107,79,0.5)', 'rgba(245,241,232,0.3)', 'rgba(0,0,0,0.5)'];
-                    for(let i=0; i<16; i++) {
-                        const randomMin = randomResult.minerals[Math.floor(Math.random() * randomResult.minerals.length)];
-                        fakeGrid.push({
-                            index: i,
-                            mineral: randomMin.name,
-                            colorHex: colors[Math.floor(Math.random() * colors.length)],
-                            feature: "Simulated Feature"
-                        });
-                    }
-                    setGridData(fakeGrid);
-                }
-
-                setResult(randomResult);
-                setLoading(false);
-            } catch (err) {
-                setErrorMsg("Gagal memuat simulasi data.");
-                setLoading(false);
+        try {
+            if (!pplImage) {
+                throw new Error("Silakan unggah gambar sampel terlebih dahulu untuk analisis AI.");
             }
-        } else {
-            // MODE LIVE API (MENGGUNAKAN GEMINI)
-            try {
-                if (!pplImage) {
-                    throw new Error("Silakan unggah gambar sampel terlebih dahulu untuk analisis AI.");
-                }
 
-                // Ambil kunci API, berikan peringatan jika kosong
-                const finalKey = GLOBAL_API_KEY || ""; 
-                if (!finalKey && typeof __app_id === 'undefined') {
-                    throw new Error("API Key tidak ditemukan. Pastikan sudah diatur di Vercel atau file .env");
-                }
+            // Gunakan model Gemini 2.5 Flash yang sangat stabil dengan API Key permanen Andro
+            const modelName = "gemini-2.5-flash";
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${PERMANENT_GEMINI_API_KEY}`;
+            const mimeType = pplImage.split(';')[0].split(':')[1];
+            const base64Data = pplImage.split(',')[1];
 
-                // PENYESUAIAN MODEL AI CERDAS: 
-                // Jika sedang di Vercel (ada finalKey), pakai model stabil publik (1.5-flash)
-                // Jika sedang di Canvas (finalKey kosong), pakai model preview khusus Canvas
-                const modelName = finalKey ? "gemini-1.5-flash" : "gemini-2.5-flash-preview-09-2025";
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${finalKey}`;
-                const mimeType = pplImage.split(';')[0].split(':')[1];
-                const base64Data = pplImage.split(',')[1];
-
-                const promptText = `Anda adalah ahli geologi profesional (petrologi dan mineralogi). Analisis gambar sampel geologi ini (Fokus analisis: ${config.title}). 
-Identifikasi batuan atau mineral dominan yang ada di gambar tersebut berdasarkan ciri visual, tekstur, dan warnanya.
+            const promptText = `Anda adalah ahli geologi profesional (petrologi dan mineralogi). Analisis gambar sampel geologi ini (Fokus analisis: ${config.title}). 
+Identifikasi batuan atau mineral dominan yang ada di gambar tersebut berdasarkan ciri visual, tekstur, dan warnanya. Berikan akurasi estimasi tinggi (80-90%).
 PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus persis seperti ini:
 {
   "rockName": "Nama Batuan/Mineral (Contoh: Basalt, Kuarsa)",
@@ -1060,57 +1061,101 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
   ]
 }`;
 
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            role: "user",
-                            parts: [
-                                { text: promptText },
-                                { inlineData: { mimeType: mimeType, data: base64Data } }
-                            ]
-                        }],
-                        generationConfig: {
-                            responseMimeType: "application/json"
+            const response = await fetchWithRetry(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: promptText },
+                            { inlineData: { mimeType: mimeType, data: base64Data } }
+                        ]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json"
+                    }
+                })
+            });
+
+            const data = await response.json();
+            const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            
+            if (textContent) {
+                const apiResult = JSON.parse(textContent);
+
+                // --- ALGORITMA DISTRIBUSI SPASIAL GRID 8x8 BERBASIS MATEMATIS PERSENTASE AI ---
+                if (mode === 'thin_section') {
+                    const totalCells = 64; // Grid 8x8
+                    const tempGrid = [];
+                    
+                    // Parsing persentase numerik dari setiap mineral secara akurat
+                    const parsedMinerals = apiResult.minerals.map((m, idx) => {
+                        const numericPct = parseFloat(m.percentage.replace(/[^0-9.]/g, '')) || 0;
+                        return { ...m, numericPct, index: idx };
+                    });
+
+                    // Hitung total persentase untuk normalisasi jika AI memberikan total tidak pas 100%
+                    const totalPct = parsedMinerals.reduce((sum, m) => sum + m.numericPct, 0) || 100;
+
+                    let allocatedMinerals = [];
+                    let totalAssigned = 0;
+
+                    // Alokasi proporsional awal menggunakan Math.floor agar tidak melebihi 64 titik
+                    parsedMinerals.forEach(m => {
+                        const count = Math.floor((m.numericPct / totalPct) * totalCells);
+                        m.allocatedCount = count;
+                        totalAssigned += count;
+                        for (let i = 0; i < count; i++) {
+                            allocatedMinerals.push(m);
                         }
-                    })
-                });
+                    });
 
-                if (!response.ok) throw new Error("Gagal menghubungi server AI (Status: " + response.status + ")");
-
-                const data = await response.json();
-                const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                
-                if (textContent) {
-                    const apiResult = JSON.parse(textContent);
-
-                    // Buat grid simulasi jika dalam mode thin section
-                    if (mode === 'thin_section') {
-                        const fakeGrid = [];
-                        const colors = ['rgba(201,166,107,0.5)', 'rgba(92,107,79,0.5)', 'rgba(245,241,232,0.3)', 'rgba(0,0,0,0.5)'];
-                        const mineralNames = apiResult.minerals && apiResult.minerals.length > 0 ? apiResult.minerals.map(m => m.name) : ["Mineral A", "Mineral B"];
-                        for(let i=0; i<16; i++) {
-                            fakeGrid.push({
-                                index: i,
-                                mineral: mineralNames[Math.floor(Math.random() * mineralNames.length)],
-                                colorHex: colors[Math.floor(Math.random() * colors.length)],
-                                feature: "AI Detected Feature"
-                            });
+                    // Distribusi selisih sisa (leftovers) secara adil ke mineral dengan sisa pecahan terbesar
+                    let leftovers = totalCells - totalAssigned;
+                    if (leftovers > 0 && parsedMinerals.length > 0) {
+                        parsedMinerals.sort((a, b) => {
+                            const remainA = ((a.numericPct / totalPct) * totalCells) - a.allocatedCount;
+                            const remainB = ((b.numericPct / totalPct) * totalCells) - b.allocatedCount;
+                            return remainB - remainA; // Urutkan sisa pecahan terbesar
+                        });
+                        
+                        let i = 0;
+                        while (leftovers > 0) {
+                            allocatedMinerals.push(parsedMinerals[i % parsedMinerals.length]);
+                            leftovers--;
+                            i++;
                         }
-                        setGridData(fakeGrid);
                     }
 
-                    setResult(apiResult);
-                } else {
-                    throw new Error("Format respons AI tidak dikenali.");
+                    // Pengacakan spasial (Fisher-Yates Shuffle) untuk mensimulasikan sebaran natural kristal
+                    for (let i = allocatedMinerals.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [allocatedMinerals[i], allocatedMinerals[j]] = [allocatedMinerals[j], allocatedMinerals[i]];
+                    }
+
+                    // Bangun gridData final 8x8
+                    for (let i = 0; i < totalCells; i++) {
+                        const min = allocatedMinerals[i];
+                        tempGrid.push({
+                            index: i,
+                            mineral: min.name,
+                            colorHex: getMineralColor(min.name),
+                            feature: min.description || "Komponen Utama Batuan"
+                        });
+                    }
+                    setGridData(tempGrid);
                 }
-            } catch (error) {
-                console.error("AI Error:", error);
-                setErrorMsg(error.message || "Terjadi kesalahan sistem saat memproses Live API AI.");
-            } finally {
-                setLoading(false);
+
+                setResult(apiResult);
+            } else {
+                throw new Error("Format respons AI dari server tidak valid / tidak dikenali.");
             }
+        } catch (error) {
+            console.error("AI Error:", error);
+            setErrorMsg(error.message || "Terjadi kesalahan sistem saat menghubungi server Gemini API.");
+        } finally {
+            setLoading(false);
         }
     }, 4000);
   };
@@ -1120,8 +1165,8 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
       
       {/* SIDEBAR KIRI */}
       <aside className={`w-20 md:w-64 ${sidebarBg} border-r border-white/5 flex flex-col justify-between shrink-0 z-20 transition-colors`}>
-         <div>
-            <div className="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-white/5">
+         <div className="overflow-y-auto flex-1 custom-scrollbar">
+            <div className="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-white/5 shrink-0">
                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[#1A1815] mr-0 md:mr-3 shrink-0" style={{backgroundColor: config.colorCode}}>
                   {mode === 'thin_section' ? <Microscope size={18} /> : mode === 'rock' ? <Mountain size={18} /> : <Gem size={18} />}
                </div>
@@ -1139,25 +1184,9 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                   <span className="hidden md:block text-sm font-medium">Ganti Analisis</span>
                </button>
             </div>
-
-            {/* TOGGLE MODE API DI SIDEBAR */}
-            <div className="px-4 hidden md:block mt-6">
-                <div className="p-4 border border-white/10 rounded-2xl bg-white/5 shadow-inner">
-                   <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold flex items-center gap-2"><Zap size={14} className={useApi ? "text-amber-400" : "text-emerald-400"} /> Mode AI</span>
-                   </div>
-                   <p className="text-[10px] opacity-50 mb-3 leading-relaxed">
-                      {useApi ? "Sedang memotong kuota API AI Anda secara Live." : "Hemat API. Mode ini menggunakan Database Simulasi Offline."}
-                   </p>
-                   <button onClick={() => setUseApi(!useApi)} className={`w-full py-2 rounded-xl text-xs font-bold border transition-colors flex justify-center items-center gap-2 ${useApi ? 'bg-amber-500/20 border-amber-500/30 text-amber-400 hover:bg-amber-500/30' : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30'}`}>
-                      {useApi ? <Globe2 size={14} /> : <ShieldCheck size={14} />}
-                      {useApi ? 'LIVE API AKTIF' : 'HEMAT API AKTIF'}
-                   </button>
-                </div>
-            </div>
          </div>
 
-         <div className="p-4 border-t border-white/5">
+         <div className="p-4 border-t border-white/5 shrink-0">
             <div className="flex items-center justify-center md:justify-start gap-3 md:px-2">
                <div className="w-8 h-8 rounded-full bg-black border border-[#C9A66B]/30 flex items-center justify-center shrink-0">
                   <User size={14} className="text-[#C9A66B]" />
@@ -1273,8 +1302,9 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                                                  <MousePointer2 size={14} className="text-white drop-shadow-md" />
                                              </div>
                                              <div>
-                                                 <div className="text-[10px] uppercase tracking-widest opacity-60 font-bold mb-0.5">Identifikasi Titik #{selectedCell + 1}</div>
+                                                 <div className="text-[10px] uppercase tracking-widest opacity-60 font-bold mb-0.5">Identifikasi Titik #{selectedCell + 1} / 64</div>
                                                  <div className="text-[#C9A66B] font-bold text-sm">{gridData.find(c => c.index === selectedCell)?.mineral || 'Mineral Tidak Diketahui'}</div>
+                                                 <div className="text-[10px] opacity-40 mt-0.5">Sifat: {gridData.find(c => c.index === selectedCell)?.feature}</div>
                                              </div>
                                          </div>
                                          <button onClick={() => setSelectedCell(null)} className="opacity-50 hover:opacity-100 hover:text-red-400 transition-colors bg-black/20 p-1.5 rounded-full">
@@ -1292,15 +1322,15 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                                  
                                  <label className="flex items-center gap-3 cursor-pointer mt-4 p-3 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10 transition-colors">
                                     <input type="checkbox" checked={usePointCounting} onChange={(e) => setUsePointCounting(e.target.checked)} className="w-4 h-4 rounded text-[#C9A66B] accent-[#C9A66B] bg-black border-white/20" />
-                                    <span className="text-sm opacity-80">Aktifkan Point Counting Grid</span>
+                                    <span className="text-sm opacity-80 font-medium">Aktifkan Point Counting Grid Rapat (8x8 - 64 Titik)</span>
                                  </label>
                               </div>
                            )}
                            
                            <button onClick={analyzeSample} disabled={loading || (analysisMode==='image' && !pplImage)} 
-                              className={`w-full text-[#1A1815] font-bold py-3.5 rounded-xl hover:shadow-[0_0_20px_rgba(201,166,107,0.4)] hover:-translate-y-0.5 active:translate-y-0 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${useApi ? 'bg-gradient-to-r from-amber-500 to-amber-300' : 'bg-gradient-to-r from-[#C9A66B] to-[#8A6E40]'}`}>
-                              {loading ? <Scan className="animate-spin" size={20} /> : (useApi ? <Zap size={20} /> : <Sparkles size={20} />)}
-                              {loading ? loadingStep : (useApi ? "Analisis dengan Live API" : "Mulai Analisis (Simulasi)")}
+                              className="w-full text-[#1A1815] font-bold py-3.5 rounded-xl hover:shadow-[0_0_20px_rgba(201,166,107,0.4)] hover:-translate-y-0.5 active:translate-y-0 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#C9A66B] to-[#8A6E40]">
+                              {loading ? <Scan className="animate-spin" size={20} /> : <Sparkles size={20} />}
+                              {loading ? loadingStep : "Mulai Analisis Ambasalt AI"}
                            </button>
                         </div>
 
@@ -1312,8 +1342,11 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                <div className="lg:col-span-6 space-y-6">
                   {errorMsg && (
                      <div className="bg-red-500/10 border border-red-500/50 text-red-200 p-4 rounded-xl flex items-start gap-3">
-                        <AlertCircle className="shrink-0 mt-0.5" size={18} />
-                        <p className="text-sm">{errorMsg}</p>
+                        <AlertCircle className="shrink-0 mt-0.5 text-red-400" size={18} />
+                        <div className="text-sm">
+                           <p className="font-bold mb-1">Terjadi Kesalahan Analisis AI:</p>
+                           <p className="opacity-80">{errorMsg}</p>
+                        </div>
                      </div>
                   )}
 
@@ -1321,8 +1354,8 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                      <div className={`${innerCardBg} border border-white/10 rounded-2xl p-6 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500 transition-colors`}>
                         <div className="flex items-start justify-between mb-6">
                            <div>
-                              <div className={`text-[10px] font-bold tracking-widest uppercase mb-1 flex items-center gap-1 ${useApi ? 'text-amber-400' : 'text-[#C9A66B]'}`}>
-                                 <CheckCircle size={12} /> {useApi ? 'Hasil Dari Live API' : 'Analisis Selesai'}
+                              <div className="text-[10px] font-bold tracking-widest text-[#C9A66B] uppercase mb-1 flex items-center gap-1">
+                                 <CheckCircle size={12} /> Hasil Dari Live API (Gemini)
                               </div>
                               <h3 className="text-2xl font-bold">{result.rockName}</h3>
                               <p className="text-sm opacity-60 mt-1">{result.classificationType}</p>
