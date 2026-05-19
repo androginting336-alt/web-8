@@ -71,8 +71,30 @@ const OFFLINE_DATABASE = {
   ]
 };
 
-// --- API KEY TERTANAM PERMANEN ---
-const PERMANENT_GEMINI_API_KEY = "AIzaSyB04hmAibpDtRDiZmPwXUUGt2CnQFefp0A";
+// --- AMAN: METODE PENGIKATAN API KEY YANG SEJAJAR DENGAN STANDAR ES2015 ---
+const getDynamicApiKey = () => {
+  try {
+    // Membaca process.env jika berada di ekosistem Create React App / Next.js
+    if (typeof process !== 'undefined' && process.env) {
+      return process.env.REACT_APP_GEMINI_API_KEY || 
+             process.env.NEXT_PUBLIC_GEMINI_API_KEY || 
+             process.env.GEMINI_API_KEY || 
+             "";
+    }
+  } catch (e) {}
+  
+  try {
+    // Membaca import.meta secara dinamis melalui Function untuk mencegah error kompilasi target ES2015
+    const dynamicMetaEnv = new Function("return import.meta.env")();
+    if (dynamicMetaEnv && dynamicMetaEnv.VITE_GEMINI_API_KEY) {
+      return dynamicMetaEnv.VITE_GEMINI_API_KEY;
+    }
+  } catch (e) {}
+
+  return "";
+};
+
+const PERMANENT_GEMINI_API_KEY = getDynamicApiKey();
 
 // --- DYNAMIC MINERAL COLOR MAPPER FOR REALISTIC OPTICAL FEEL ---
 const getMineralColor = (mineralName) => {
@@ -1042,7 +1064,7 @@ function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isB
                 throw new Error("Silakan unggah gambar sampel terlebih dahulu untuk analisis AI.");
             }
 
-            // Gunakan model Gemini 2.5 Flash yang sangat stabil dengan API Key permanen Andro
+            // Gunakan model Gemini 2.5 Flash yang sangat stabil
             const modelName = "gemini-2.5-flash";
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${PERMANENT_GEMINI_API_KEY}`;
             const mimeType = pplImage.split(';')[0].split(':')[1];
