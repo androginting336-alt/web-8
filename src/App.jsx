@@ -71,30 +71,8 @@ const OFFLINE_DATABASE = {
   ]
 };
 
-// --- AMAN: METODE PENGIKATAN API KEY YANG SEJAJAR DENGAN STANDAR ES2015 ---
-const getDynamicApiKey = () => {
-  try {
-    // Membaca process.env jika berada di ekosistem Create React App / Next.js
-    if (typeof process !== 'undefined' && process.env) {
-      return process.env.REACT_APP_GEMINI_API_KEY || 
-             process.env.NEXT_PUBLIC_GEMINI_API_KEY || 
-             process.env.GEMINI_API_KEY || 
-             "";
-    }
-  } catch (e) {}
-  
-  try {
-    // Membaca import.meta secara dinamis melalui Function untuk mencegah error kompilasi target ES2015
-    const dynamicMetaEnv = new Function("return import.meta.env")();
-    if (dynamicMetaEnv && dynamicMetaEnv.VITE_GEMINI_API_KEY) {
-      return dynamicMetaEnv.VITE_GEMINI_API_KEY;
-    }
-  } catch (e) {}
-
-  return "";
-};
-
-const PERMANENT_GEMINI_API_KEY = getDynamicApiKey();
+// --- API KEY TERTANAM PERMANEN ---
+const PERMANENT_GEMINI_API_KEY = "AIzaSyB04hmAibpDtRDiZmPwXUUGt2CnQFefp0A";
 
 // --- DYNAMIC MINERAL COLOR MAPPER FOR REALISTIC OPTICAL FEEL ---
 const getMineralColor = (mineralName) => {
@@ -473,7 +451,7 @@ function AuthScreen({ onLogin, isBlackMode }) {
                   </div>
                   <h1 className="text-2xl md:text-3xl font-bold tracking-wide text-white mb-2">Ambasalt</h1>
                   <p className="text-xs md:text-sm text-[#F5F1E8]/70 font-light">Rock Mineral and Thin Section Analysis</p>
-                  <p className="text-[10px] text-[#C9A66B]/80 font-mono tracking-wider mt-1 uppercase">Oleh Andro</p>
+                  <p className="text-[10px] text-[#C9A66B]/80 font-mono tracking-wider mt-1 uppercase">Oleh Kelompok 23</p>
               </div>
 
               <form id="loginForm" onSubmit={handleLogin} className="space-y-5">
@@ -695,7 +673,7 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
           {/* Hero Section */}
           <div className="text-center max-w-4xl mx-auto mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#C9A66B]/30 bg-[#C9A66B]/10 text-[#C9A66B] text-xs font-bold uppercase tracking-wider mb-6">
-                <Sparkles size={14} /> Created by Andro
+                <Sparkles size={14} /> Created by Kelompok 23
              </div>
              <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
                 Membaca Sejarah Bumi <br/> Melalui <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A66B] to-[#8A6E40]">Batuan</span>
@@ -813,7 +791,7 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
                 <div className="mt-auto">
                    <div className="w-12 h-1 bg-[#C9A66B] mx-auto mb-4 rounded-full"></div>
                    <p className="font-bold text-[#C9A66B] tracking-widest text-sm uppercase">Pencipta & Pengembang</p>
-                   <p className="text-base font-semibold mt-1 text-white">Andro</p>
+                   <p className="text-base font-semibold mt-1 text-white">Kelompok 23</p>
                    <p className="text-xs mt-0.5 opacity-80">Geologi Ambasalt ITERA</p>
                 </div>
              </div>
@@ -829,13 +807,13 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
                 </div>
                 <div>
                     <h4 className="font-bold text-lg tracking-wide">Ambasalt Web App</h4>
-                    <p className="opacity-50 text-xs mt-1 uppercase tracking-wider">Created by Andro</p>
+                    <p className="opacity-50 text-xs mt-1 uppercase tracking-wider">Created by Kelompok 23</p>
                 </div>
              </div>
              
              <div className="text-center md:text-right">
                 <p className="opacity-70 text-sm mb-1">
-                   Diciptakan dan dikembangkan untuk studi kebumian oleh <span className="font-bold text-[#C9A66B]">Andro</span>
+                   Diciptakan dan dikembangkan untuk studi kebumian oleh <span className="font-bold text-[#C9A66B]">Kelompok 23</span>
                 </p>
                 <p className="text-xs opacity-50">
                    Tim Geologi Ambasalt Institut Teknologi Sumatera (ITERA)
@@ -1064,7 +1042,7 @@ function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isB
                 throw new Error("Silakan unggah gambar sampel terlebih dahulu untuk analisis AI.");
             }
 
-            // Gunakan model Gemini 2.5 Flash yang sangat stabil
+            // Gunakan model Gemini 2.5 Flash yang sangat stabil dengan API Key permanen Andro
             const modelName = "gemini-2.5-flash";
             const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${PERMANENT_GEMINI_API_KEY}`;
             const mimeType = pplImage.split(';')[0].split(':')[1];
