@@ -72,7 +72,7 @@ const OFFLINE_DATABASE = {
 };
 
 // --- API KEY TERTANAM PERMANEN ---
-const PERMANENT_GEMINI_API_KEY = "AIzaSyDc20Y4DsNmvS2u2zwWGM_13mFN7zsRJ5s";
+const GEMINI_API_ENDPOINT = "/api/gemini";
 
 // --- DYNAMIC MINERAL COLOR MAPPER FOR REALISTIC OPTICAL FEEL ---
 const getMineralColor = (mineralName) => {
@@ -1044,7 +1044,7 @@ function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isB
 
             // Gunakan model Gemini 2.5 Flash yang sangat stabil dengan API Key permanen Andro
             const modelName = "gemini-2.5-flash";
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${PERMANENT_GEMINI_API_KEY}`;
+            const url = `/api/gemini`;
             const mimeType = pplImage.split(';')[0].split(':')[1];
             const base64Data = pplImage.split(',')[1];
 
