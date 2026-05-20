@@ -6,7 +6,7 @@ import {
   FileText, ListChecks, Eye, ChevronDown, ChevronUp, Info, AlignLeft, Ban,
   User, Lock, Mail, Facebook, Github, Linkedin, Chrome, AlertCircle, CheckCircle, ArrowRight,
   LogOut, Mountain, Gem, ChevronLeft, Map, MessageSquare, Send, X, Sparkles, Bot, Hexagon, LayoutDashboard, WifiOff,
-  Search, Compass, Flame, Heart, Target, Zap, ShieldCheck
+  Search, Compass, Flame, Heart, Target, Zap, ShieldCheck, Radio, TrendingUp, Loader, Plus, Minus
 } from 'lucide-react';
 
 const OFFLINE_DATABASE = {
@@ -24,26 +24,13 @@ const OFFLINE_DATABASE = {
         { name: "Massa Dasar (Gelas)", percentage: "30%", description: "Isotropik (gelap total di XPL).", detailedOpticalProps: { relief: "Rendah", sifat: "Isotropik" } },
         { name: "Opak (Magnetit)", percentage: "5%", description: "Hitam di PPL dan XPL.", detailedOpticalProps: { sifat: "Opak" } }
       ]
-    },
-    {
-      rockName: "Oolitic Limestone",
-      classificationType: "Batuan Sedimen Karbonat (Folk: Oosparite)",
-      description: "Batuan didominasi oleh butiran ooid dengan struktur konsentris yang terkompaksi baik. Semen berupa kalsit spar (sparite) mengisi ruang antar butir. Sedikit fosil foraminifera bentonik.",
-      paragenesis: "Presipitasi ooid di lingkungan laut dangkal berenergi tinggi, diikuti sementasi kalsit spar saat diagenesis.",
-      petrogenesis: "Lingkungan pengendapan laut dangkal tropis (shallow marine shoal).",
-      occurrences: { indonesia: ["Formasi Wonosari, Gunung Kidul", "Papua"], world: ["Bahamas"] },
-      minerals: [
-        { name: "Kalsit (Ooid)", percentage: "70%", description: "Butiran sferis dengan lamela konsentris.", detailedOpticalProps: { warnaInterferensi: "High order white/pastel", relief: "Berubah (Twinkle)" } },
-        { name: "Kalsit (Semen Spar)", percentage: "25%", description: "Kristal anhedral jernih antar butir.", detailedOpticalProps: { relief: "Berubah", kembaran: "Polisintetik" } },
-        { name: "Bioklas", percentage: "5%", description: "Fragmen cangkang fosil.", detailedOpticalProps: { struktur: "Organik" } }
-      ]
     }
   ],
   rock: [
     {
       rockName: "Granit Biotit",
       classificationType: "Batuan Beku Asam (Plutonik)",
-      description: "Batuan berbutir kasar (faneritik), holokristalin, berwarna terang berbintik hitam. Terdiri dominan dari K-Feldspar (merah muda), Kuarsa (transparan/abu-abu), dan Biotit (hitam).",
+      description: "Batuan berbutir kasar (faneritik), holokristalin, berwarna terang berbintik hitam.",
       paragenesis: "Pembekuan magma lambat jauh di bawah permukaan bumi (intrusif).",
       petrogenesis: "Magma felsik hasil pelelehan kerak benua atau diferensiasi magma.",
       occurrences: { indonesia: ["Kepulauan Riau (Karimun)", "Sulawesi Barat"], world: ["Yosemite, USA"] },
@@ -59,7 +46,7 @@ const OFFLINE_DATABASE = {
     {
       rockName: "Amethyst (Kecubung)",
       classificationType: "Mineral Silikat (Tektosilikat)",
-      description: "Varietas kuarsa berwarna ungu. Kristal berbentuk prisma heksagonal dengan terminasi piramidal. Transparan hingga translusen.",
+      description: "Varietas kuarsa berwarna ungu. Kristal berbentuk prisma heksagonal dengan terminasi piramidal.",
       paragenesis: "Terbentuk di rongga geode pada batuan vulkanik, warna ungu akibat iradiasi besi (Fe3+).",
       petrogenesis: "Hidrotermal suhu rendah.",
       occurrences: { indonesia: ["Kalimantan Barat", "Lampung"], world: ["Brazil", "Uruguay"] },
@@ -71,37 +58,35 @@ const OFFLINE_DATABASE = {
   ]
 };
 
-// --- API KEY TERTANAM PERMANEN ---
-const GEMINI_API_ENDPOINT = "/api/gemini";
-
-// --- DYNAMIC MINERAL COLOR MAPPER FOR REALISTIC OPTICAL FEEL ---
 const getMineralColor = (mineralName) => {
   const name = mineralName.toLowerCase();
   if (name.includes('plagioklas') || name.includes('andesin') || name.includes('feldspar')) {
-    return 'rgba(215, 220, 230, 0.45)'; // Putih abu-abu khas kembaran albit
+    return 'rgba(215, 220, 230, 0.45)';
   }
   if (name.includes('piroksen') || name.includes('augit')) {
-    return 'rgba(105, 140, 95, 0.5)'; // Hijau pucat PPL / Orde tinggi XPL
+    return 'rgba(105, 140, 95, 0.5)';
   }
   if (name.includes('kuarsa') || name.includes('quartz')) {
-    return 'rgba(240, 245, 255, 0.2)'; // Sangat jernih transparan
+    return 'rgba(240, 245, 255, 0.2)';
   }
   if (name.includes('biotit') || name.includes('mika')) {
-    return 'rgba(160, 110, 60, 0.55)'; // Cokelat pleokroik kuat
+    return 'rgba(160, 110, 60, 0.55)';
   }
   if (name.includes('kalsit') || name.includes('limestone') || name.includes('ooid')) {
-    return 'rgba(235, 225, 205, 0.5)'; // Krem kembaran twinkling
+    return 'rgba(235, 225, 205, 0.5)';
   }
   if (name.includes('gelas') || name.includes('massa dasar')) {
-    return 'rgba(40, 40, 40, 0.6)'; // Gelap isotropik
+    return 'rgba(40, 40, 40, 0.6)';
   }
   if (name.includes('opak') || name.includes('magnetit')) {
-    return 'rgba(15, 15, 15, 0.85)'; // Opak hitam pekat
+    return 'rgba(15, 15, 15, 0.85)';
   }
-  return 'rgba(201, 166, 107, 0.45)'; // Default emas estetik
+  return 'rgba(201, 166, 107, 0.45)';
 };
 
-// --- ROOT COMPONENT ---
+// ============================================
+// ROOT COMPONENT ENHANCED
+// ============================================
 export default function App() {
   const [screen, setScreen] = useState('auth'); 
   const [appMode, setAppMode] = useState('thin_section'); 
@@ -133,6 +118,69 @@ export default function App() {
 
   return (
     <div className={`font-sans ${textMain} antialiased selection:bg-[#C9A66B]/30 selection:text-[#C9A66B] h-screen w-full overflow-hidden ${mainBg} transition-colors duration-500`}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;600;800;900&display=swap');
+        
+        * {
+          transition: color 0.3s, background-color 0.3s, border-color 0.3s;
+        }
+        
+        ::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+          background: rgba(255,255,255,0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+          background: rgba(201,166,107,0.3);
+          border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: rgba(201,166,107,0.6);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(201,166,107,0.2);
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(201,166,107,0.4);
+        }
+        
+        .glow-cyan {
+          box-shadow: 0 0 20px rgba(0, 240, 255, 0.3), inset 0 0 20px rgba(0, 240, 255, 0.1);
+        }
+        
+        .glow-gold {
+          box-shadow: 0 0 20px rgba(201, 166, 107, 0.3), inset 0 0 20px rgba(201, 166, 107, 0.1);
+        }
+        
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        
+        @keyframes glow-pulse {
+          0%, 100% { box-shadow: 0 0 20px rgba(201, 166, 107, 0.3); }
+          50% { box-shadow: 0 0 30px rgba(201, 166, 107, 0.6); }
+        }
+        
+        @keyframes scan-line {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100%); }
+        }
+        
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-glow { animation: glow-pulse 2s ease-in-out infinite; }
+        .scan-animation { animation: scan-line 3s linear infinite; }
+      `}</style>
       {screen === 'auth' && <AuthScreen onLogin={handleLoginSuccess} isBlackMode={isBlackMode} />}
       {screen === 'dashboard' && <DashboardScreen onNavigateToSelection={handleGoToSelection} onLogout={handleLogout} user={user} isBlackMode={isBlackMode} toggleTheme={toggleTheme} />}
       {screen === 'selection' && <SelectionScreen onSelect={handleSelectMode} onBack={handleBackToDashboard} onLogout={handleLogout} user={user} isBlackMode={isBlackMode} toggleTheme={toggleTheme} />}
@@ -141,18 +189,17 @@ export default function App() {
   );
 }
 
-// --- 1. AUTH SCREEN (LAYER 1) ---
+// ============================================
+// AUTH SCREEN - dengan 3D background
+// ============================================
 function AuthScreen({ onLogin, isBlackMode }) {
   const [view, setView] = useState('login');
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegPassword, setShowRegPassword] = useState(false);
-  
   const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [isRegLoading, setIsRegLoading] = useState(false);
   const [loadedCards, setLoadedCards] = useState({ login: false, register: false });
-  
   const canvasRef = useRef(null);
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbwOzXMCnlqn7HpP3zVz4T5mC5TAU8GBYdSrugccf3C4PW2nOxLGN3zffwZ149VdGq5q/exec';
 
   useEffect(() => {
     const link = document.createElement('link');
@@ -256,14 +303,6 @@ function AuthScreen({ onLogin, isBlackMode }) {
       const terrainLines = new THREE.Mesh(lineGeo, lineMat);
       terrainLines.rotation.x = -Math.PI / 2;
       terrainLines.position.y = -15;
-      
-      const vertices = terrainLines.geometry.attributes.position.array;
-      for (let i = 0; i < vertices.length; i += 3) {
-          const x = vertices[i];
-          const y = vertices[i + 1];
-          vertices[i + 2] = Math.sin(x/5) * Math.cos(y/5) * 3; 
-      }
-      terrainLines.geometry.computeVertexNormals();
       terrainGroup.add(terrainLines);
       scene.add(terrainGroup);
 
@@ -282,12 +321,6 @@ function AuthScreen({ onLogin, isBlackMode }) {
 
       if (particlesMesh) {
           particlesMesh.rotation.y = time * 0.05;
-          const positions = particlesMesh.geometry.attributes.position.array;
-          for(let i = 1; i < particlesCount * 3; i+=3) {
-              positions[i] += 0.02;
-              if (positions[i] > 30) positions[i] = -30;
-          }
-          particlesMesh.geometry.attributes.position.needsUpdate = true;
       }
 
       crystals.forEach((crystal) => {
@@ -339,37 +372,8 @@ function AuthScreen({ onLogin, isBlackMode }) {
     };
   }, [isBlackMode]);
 
-  const createRipple = (e) => {
-    const button = e.currentTarget;
-    const circle = document.createElement('span');
-    const diameter = Math.max(button.clientWidth, button.clientHeight);
-    const radius = diameter / 2;
-    const rect = button.getBoundingClientRect();
-    
-    circle.style.width = circle.style.height = `${diameter}px`;
-    circle.style.left = `${e.clientX - rect.left - radius}px`;
-    circle.style.top = `${e.clientY - rect.top - radius}px`;
-    circle.classList.add('ripple');
-
-    const rippleElement = button.querySelector('.ripple');
-    if (rippleElement) rippleElement.remove();
-    button.appendChild(circle);
-  };
-
-  const toggleView = (newView, e) => {
-    if (e) e.preventDefault();
-    setLoadedCards({ login: false, register: false });
-    setTimeout(() => {
-      setView(newView);
-      setTimeout(() => {
-        setLoadedCards(prev => ({ ...prev, [newView]: true }));
-      }, 30);
-    }, 300);
-  };
-
   const handleLogin = (e) => {
     e.preventDefault();
-    createRipple(e);
     setIsLoginLoading(true);
     const emailValue = e.target.querySelector('#email').value;
 
@@ -381,26 +385,33 @@ function AuthScreen({ onLogin, isBlackMode }) {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    createRipple(e);
     setIsRegLoading(true);
 
     const form = e.target;
     try {
         const formData = new FormData(form);
-        const response = await fetch(scriptURL, { method: 'POST', body: formData });
+        const response = await fetch('https://script.google.com/macros/s/AKfycbwOzXMCnlqn7HpP3zVz4T5mC5TAU8GBYdSrugccf3C4PW2nOxLGN3zffwZ149VdGq5q/exec', { method: 'POST', body: formData });
         if(response.ok) {
-            alert('Registration Successful! Please sign in.');
+            alert('Pendaftaran Berhasil! Silakan masuk.');
             form.reset();
-            toggleView('login');
-        } else {
-            throw new Error("Network response was not ok.");
+            setView('login');
         }
     } catch (error) {
         console.error('Error!', error.message);
-        alert('Oops! There was an error submitting your form.');
     } finally {
         setIsRegLoading(false);
     }
+  };
+
+  const toggleView = (newView, e) => {
+    if (e) e.preventDefault();
+    setLoadedCards({ login: false, register: false });
+    setTimeout(() => {
+      setView(newView);
+      setTimeout(() => {
+        setLoadedCards(prev => ({ ...prev, [newView]: true }));
+      }, 30);
+    }, 300);
   };
 
   return (
@@ -425,33 +436,24 @@ function AuthScreen({ onLogin, isBlackMode }) {
         .btn-gradient:active { transform: translateY(1px); }
         .btn-glass { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #F5F1E8; transition: all 0.3s ease; }
         .btn-glass:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
-        .ripple { position: absolute; background: rgba(255, 255, 255, 0.4); border-radius: 50%; transform: scale(0); animation: ripple-anim 0.6s linear; pointer-events: none; }
-        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
         .loader { border: 2px solid rgba(26, 24, 21, 0.2); border-left-color: #1A1815; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .btn-loading .loader { display: inline-block; }
         .btn-loading .btn-text { display: none; }
-        .custom-checkbox { appearance: none; width: 16px; height: 16px; border: 1px solid rgba(245, 241, 232, 0.3); border-radius: 4px; background: rgba(0, 0, 0, 0.5); cursor: pointer; position: relative; transition: all 0.2s; }
-        .custom-checkbox:checked { background: #C9A66B; border-color: #C9A66B; }
-        .custom-checkbox:checked::after { content: '✓'; position: absolute; color: #1A1815; font-size: 12px; font-weight: bold; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        .hide-view { display: none !important; }
       `}</style>
 
-      {/* 3D Background Container */}
       <div id="canvas-container" ref={canvasRef}></div>
 
-      {/* UI Overlay */}
       <div id="ui-container" className="text-[#F5F1E8]">
           
-          {/* =================== LOGIN CARD =================== */}
-          <div id="login-card" className={`glass-card w-full max-w-[420px] p-8 md:p-10 mx-auto ${view !== 'login' ? 'hide-view' : ''} ${loadedCards.login ? 'loaded' : ''}`}>
+          <div id="login-card" className={`glass-card w-full max-w-[420px] p-8 md:p-10 mx-auto ${view !== 'login' ? 'hidden' : ''} ${loadedCards.login ? 'loaded' : ''}`}>
               <div className="text-center mb-8">
                   <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-white/5 border border-white/10 mb-4 logo-glow">
                       <Mountain size={36} className="text-[#C9A66B] fill-[#C9A66B]" />
                   </div>
                   <h1 className="text-2xl md:text-3xl font-bold tracking-wide text-white mb-2">Ambasalt</h1>
-                  <p className="text-xs md:text-sm text-[#F5F1E8]/70 font-light">Rock Mineral and Thin Section Analysis</p>
-                  <p className="text-[10px] text-[#C9A66B]/80 font-mono tracking-wider mt-1 uppercase">Oleh Kelompok 23</p>
+                  <p className="text-xs md:text-sm text-[#F5F1E8]/70 font-light">Rock Mineral & Thin Section Analysis</p>
+                  <p className="text-[10px] text-[#C9A66B]/80 font-mono tracking-wider mt-1 uppercase">+ GEO-LENS v2.5 Engine</p>
               </div>
 
               <form id="loginForm" onSubmit={handleLogin} className="space-y-5">
@@ -476,16 +478,8 @@ function AuthScreen({ onLogin, isBlackMode }) {
                       </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-xs mt-2">
-                      <label className="flex items-center space-x-2 cursor-pointer group">
-                          <input type="checkbox" className="custom-checkbox" />
-                          <span className="text-[#F5F1E8]/70 group-hover:text-[#F5F1E8] transition-colors">Remember me</span>
-                      </label>
-                      <a href="#" className="text-[#C9A66B] hover:text-[#D4AF37] hover:underline transition-colors">Forgot Password?</a>
-                  </div>
-
                   <button type="submit" className={`btn-gradient w-full rounded-xl py-3.5 mt-4 font-semibold text-sm flex items-center justify-center gap-2 relative ${isLoginLoading ? 'btn-loading' : ''}`}>
-                      <span className="btn-text">Sign In</span>
+                      <span className="btn-text">Sign In & Explore</span>
                       <ArrowRight size={16} strokeWidth={3} className="btn-text" />
                       <div className="loader"></div>
                   </button>
@@ -497,7 +491,7 @@ function AuthScreen({ onLogin, isBlackMode }) {
                   <div className="flex-grow border-t border-white/10"></div>
               </div>
 
-              <button className="btn-glass w-full rounded-xl py-3 font-medium text-sm flex items-center justify-center gap-3 relative overflow-hidden" onClick={createRipple}>
+              <button className="btn-glass w-full rounded-xl py-3 font-medium text-sm flex items-center justify-center gap-3 relative overflow-hidden">
                   <Chrome size={20} className="fill-current" />
                   Continue with Google
               </button>
@@ -510,11 +504,10 @@ function AuthScreen({ onLogin, isBlackMode }) {
               </div>
           </div>
 
-          {/* =================== REGISTER CARD =================== */}
-          <div id="register-card" className={`glass-card w-full max-w-[420px] p-8 md:p-10 mx-auto ${view !== 'register' ? 'hide-view' : ''} ${loadedCards.register ? 'loaded' : ''}`}>
+          <div id="register-card" className={`glass-card w-full max-w-[420px] p-8 md:p-10 mx-auto ${view !== 'register' ? 'hidden' : ''} ${loadedCards.register ? 'loaded' : ''}`}>
               <div className="text-center mb-6">
                   <h2 className="text-2xl md:text-3xl font-bold tracking-wide text-white mb-2">Create Account</h2>
-                  <p className="text-xs md:text-sm text-[#F5F1E8]/70 font-light">Join Ambasalt for mineral analysis</p>
+                  <p className="text-xs md:text-sm text-[#F5F1E8]/70 font-light">Join Ambasalt + GEO-LENS</p>
               </div>
 
               <form id="registerForm" onSubmit={handleRegister} className="space-y-4">
@@ -549,7 +542,7 @@ function AuthScreen({ onLogin, isBlackMode }) {
                   </div>
 
                   <button type="submit" className={`btn-gradient w-full rounded-xl py-3.5 mt-2 font-semibold text-sm flex items-center justify-center gap-2 relative ${isRegLoading ? 'btn-loading' : ''}`}>
-                      <span className="btn-text">Register Account</span>
+                      <span className="btn-text">Create Account</span>
                       <User size={16} strokeWidth={3} className="btn-text" />
                       <div className="loader"></div>
                   </button>
@@ -567,7 +560,9 @@ function AuthScreen({ onLogin, isBlackMode }) {
   );
 }
 
-// --- 2. DASHBOARD SCREEN (LAYER 2 - PENGENALAN GEOLOGI) ---
+// ============================================
+// DASHBOARD SCREEN
+// ============================================
 function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, toggleTheme }) {
   const [selectedTopic, setSelectedTopic] = useState(null);
   
@@ -615,78 +610,68 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
   ];
 
   const funFacts = [
-    "Gempa bumi terdalam yang pernah tercatat terjadi di kedalaman lebih dari 750 kilometer di bawah permukaan!",
+    "Gempa bumi terdalam yang pernah tercatat terjadi di kedalaman lebih dari 750 kilometer!",
     "Palung Mariana (10.9 km) jauh lebih dalam daripada ketinggian puncak Gunung Everest (8.8 km).",
-    "Batu Apung (Pumice) adalah satu-satunya batuan yang memiliki rongga udara sangat banyak hingga bisa mengapung di air.",
-    "Intan terdalam tidak terbentuk dari batu bara, melainkan dari material karbon purba di mantel bumi sejak 1 hingga 3 miliar tahun yang lalu.",
-    "Bumi memiliki lempeng tektonik yang terus bergerak sekitar 2 hingga 10 sentimeter per tahun (secepat pertumbuhan kuku manusia).",
-    "Sekitar 335 juta tahun yang lalu, seluruh benua di Bumi menyatu membentuk satu *supercontinent* raksasa yang disebut Pangea.",
-    "Warna merah menyala pada tanah di planet Mars disebabkan oleh oksidasi besi, mirip seperti proses berkarat di bumi.",
-    "Sebagian besar emas yang kita tambang hari ini berasal dari hantaman meteorit miliaran tahun silam sesaat setelah bumi terbentuk.",
-    "Magma bisa mencapai suhu 700° hingga 1300° Celcius, cukup panas untuk melelehkan besi dan sebagian besar logam.",
-    "Mineral Kuarsa (Silikon Dioksida) bersifat piezoelektrik, yang berarti bisa menghasilkan listrik bila ditekan, menjadikannya komponen vital pada jam tangan."
+    "Batu Apung (Pumice) adalah satu-satunya batuan yang bisa mengapung di air!",
+    "Intan terdalam tidak terbentuk dari batu bara, melainkan dari material karbon purba.",
+    "Bumi memiliki lempeng tektonik yang bergerak sekitar 2-10 cm per tahun (secepat pertumbuhan kuku)!",
+    "Sekitar 335 juta tahun lalu, seluruh benua menyatu membentuk supercontinent Pangea.",
+    "Warna merah pada tanah di Mars disebabkan oleh oksidasi besi, seperti berkarat di bumi.",
+    "Sebagian besar emas yang kita tambang berasal dari hantaman meteorit miliaran tahun silam.",
+    "Magma bisa mencapai suhu 700°-1300°C, cukup untuk melelehkan besi!",
+    "Mineral Kuarsa bersifat piezoelektrik - menghasilkan listrik bila ditekan!"
   ];
 
   return (
     <div className="h-full w-full flex flex-col font-sans overflow-y-auto overflow-x-hidden relative custom-scrollbar">
-       {/* Decorative Background */}
        <div className="absolute top-[10%] left-[-10%] w-[500px] h-[500px] bg-[#C9A66B]/10 rounded-full blur-[120px] pointer-events-none"></div>
        <div className="absolute bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-[#5C6B4F]/10 rounded-full blur-[100px] pointer-events-none"></div>
 
-       {/* Navbar */}
        <nav className={`h-20 border-b border-white/5 ${navBg} backdrop-blur-md flex items-center justify-between px-6 md:px-8 sticky top-0 z-50 shrink-0 transition-colors duration-500`}>
           <div className="flex items-center gap-4">
-             {/* Logo ITERA */}
              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Logo_ITERA.png/600px-Logo_ITERA.png" alt="ITERA" className="h-10 w-auto object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" />
-             {/* Logo GL (Teknik Geologi) - Custom CSS Badge */}
-             <div className="h-10 w-10 bg-gradient-to-br from-[#C9A66B] to-[#8A6E40] rounded-full flex items-center justify-center border-[2px] border-[#1A1815] shadow-[0_0_15px_rgba(201,166,107,0.4)] shrink-0">
-                <span className="text-[#1A1815] font-black text-sm tracking-tighter">GL</span>
+             <div className="h-10 w-10 bg-gradient-to-br from-[#00f0ff] to-[#0066ff] rounded-full flex items-center justify-center border-[2px] border-[#030712] shadow-[0_0_15px_rgba(0,240,255,0.4)] shrink-0">
+                <Microscope size={18} className="text-[#030712]" />
              </div>
-             
              <div className="ml-2 hidden sm:block">
                 <h1 className="font-bold text-xl tracking-tight flex items-center gap-2">
-                   GeoExplorer
+                   Ambasalt × GEO-LENS
                 </h1>
-                <p className="text-[10px] text-[#C9A66B] font-mono tracking-widest uppercase mt-0.5">Pusat Pengetahuan Ambasalt</p>
+                <p className="text-[10px] text-[#C9A66B] font-mono tracking-widest uppercase mt-0.5">AI Geology Engine v2.5</p>
              </div>
           </div>
           <div className="flex items-center gap-4 md:gap-6">
              <button onClick={toggleTheme} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all" title="Ganti Tema">
                 {isBlackMode ? <Sun size={18} className="text-amber-200" /> : <Moon size={18} className="text-slate-300" />}
              </button>
-
              <div className="flex items-center gap-3 border-l border-white/10 pl-4 md:pl-6">
                 <div className="text-right hidden sm:block">
                    <p className="text-sm font-bold">{user?.name || 'Geologist'}</p>
-                   <p className="text-[10px] opacity-50">Eksplorator Utama</p>
+                   <p className="text-[10px] opacity-50">Premium Subscriber</p>
                 </div>
-                <button onClick={onLogout} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center opacity-70 hover:text-red-400 hover:bg-red-400/10 transition-all" title="Keluar">
+                <button onClick={onLogout} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center opacity-70 hover:text-red-400 hover:bg-red-400/10 transition-all" title="Logout">
                    <LogOut size={18} />
                 </button>
              </div>
           </div>
        </nav>
 
-       {/* Main Scrolling Content Area */}
        <div className="flex-1 w-full max-w-7xl mx-auto px-6 py-12 relative z-10 flex flex-col shrink-0">
-          
-          {/* Hero Section */}
           <div className="text-center max-w-4xl mx-auto mb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#C9A66B]/30 bg-[#C9A66B]/10 text-[#C9A66B] text-xs font-bold uppercase tracking-wider mb-6">
-                <Sparkles size={14} /> Created by Kelompok 23
+                <Sparkles size={14} /> Powered by AI Engine
              </div>
              <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                Membaca Sejarah Bumi <br/> Melalui <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C9A66B] to-[#8A6E40]">Batuan</span>
+                Membaca Sejarah Bumi <br/> Melalui <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00f0ff] to-[#0066ff]">Analisis Geologi</span>
              </h2>
              <p className="text-lg opacity-70 mb-10 leading-relaxed max-w-2xl mx-auto">
-                Setiap batuan menyimpan cerita tentang bagaimana ia terbentuk, dari erupsi gunung berapi yang dahsyat hingga tekanan luar biasa di kerak bumi. Mari pelajari lebih dalam!
+                Teknologi AI terdepan bertemu tradisi geologi modern untuk menganalisis struktur kristal, komposisi mineral, dan sejarah batuan dengan akurasi tinggi.
              </p>
-             <button onClick={onNavigateToSelection} className="inline-flex items-center gap-3 bg-gradient-to-r from-[#C9A66B] to-[#8A6E40] text-[#1A1815] px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-[0_10px_30px_rgba(201,166,107,0.3)] hover:-translate-y-1 transition-all">
-                <Scan size={22} /> Alat Analisis Ambasalt <ArrowRight size={20} />
+             <button onClick={onNavigateToSelection} className="inline-flex items-center gap-3 bg-gradient-to-r from-[#00f0ff] to-[#0066ff] text-[#030712] px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-[0_10px_30px_rgba(0,240,255,0.3)] hover:-translate-y-1 transition-all">
+                <Scan size={22} /> Akses GEO-LENS Analyzer <ArrowRight size={20} />
              </button>
           </div>
 
-          {/* Apa itu Geologi & Batuan */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
              <div className={`${cardBg} border border-[#C9A66B]/20 p-8 md:p-10 rounded-3xl backdrop-blur-sm hover:border-[#C9A66B]/50 transition-colors shadow-xl`}>
                 <div className="w-14 h-14 bg-[#C9A66B]/10 rounded-2xl flex items-center justify-center mb-6">
@@ -694,7 +679,7 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-4">Apa itu Geologi?</h3>
                 <p className="opacity-70 leading-relaxed text-sm md:text-base">
-                   Geologi adalah ilmu yang mempelajari planet bumi secara menyeluruh, mencakup bahan penyusunnya (batuan, air, mineral), struktur, sifat fisik, sejarah masa lalu, hingga proses pembentukannya yang tiada henti. Melalui ilmu geologi, kita bisa memahami misteri bagaimana benua bergerak, mengapa gunung meletus, mendeteksi sumber daya alam, dan memitigasi bencana bumi.
+                   Geologi adalah ilmu yang mempelajari planet bumi secara menyeluruh, mencakup bahan penyusunnya (batuan, air, mineral), struktur, sifat fisik, sejarah masa lalu, dan proses pembentukannya yang tiada henti.
                 </p>
              </div>
              <div className={`${cardBg} border border-[#5C6B4F]/20 p-8 md:p-10 rounded-3xl backdrop-blur-sm hover:border-[#5C6B4F]/50 transition-colors shadow-xl`}>
@@ -703,16 +688,15 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-4">Apa itu Batuan?</h3>
                 <p className="opacity-70 leading-relaxed text-sm md:text-base">
-                   Batuan adalah massa padat yang terbentuk secara alami, tersusun atas kristal dari satu atau lebih jenis mineral. Batuan adalah "buku harian" planet kita. Mereka mencatat peristiwa geologis masa lalu, kondisi lingkungan laut atau darat purba, serta perubahan suhu dan tekanan ekstrem yang pernah terjadi di bawah maupun di atas permukaan bumi selama miliaran tahun.
+                   Batuan adalah massa padat yang terbentuk secara alami, tersusun atas kristal dari satu atau lebih jenis mineral. Mereka mencatat peristiwa geologis masa lalu selama miliaran tahun.
                 </p>
              </div>
           </div>
 
-          {/* Pengenalan Geologi Grid (Interaktif dengan Gambar) */}
           <div className="mb-24">
              <div className="text-center mb-12">
                 <h3 className="text-3xl md:text-4xl font-bold mb-4">Materi Studi Utama</h3>
-                <p className="opacity-50">Klik pada kartu di bawah ini untuk melihat fakta tersembunyi!</p>
+                <p className="opacity-50">Klik pada kartu untuk melihat fakta-fakta menarik!</p>
              </div>
 
              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -732,7 +716,7 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
                             {topic.desc}
                          </p>
                          <button className={`w-full py-3 rounded-xl bg-white/5 font-semibold text-sm transition-colors border border-white/10 group-hover:bg-white/10 ${topic.btnColor}`}>
-                            Lihat Fakta Detail
+                            Lihat Detail
                          </button>
                       </div>
                    </div>
@@ -740,107 +724,61 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
              </div>
           </div>
 
-          {/* Fakta Menarik List */}
-          <div className={`${isBlackMode ? 'bg-zinc-900' : 'bg-gradient-to-br from-[#2E2A24] to-[#1A1815]'} border border-[#C9A66B]/30 rounded-3xl p-8 md:p-12 flex flex-col gap-10 items-start mb-24 shadow-2xl relative overflow-hidden`}>
-             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#C9A66B]/5 rounded-full blur-[80px] pointer-events-none"></div>
-             
+          <div className={`${isBlackMode ? 'bg-zinc-900' : 'bg-gradient-to-br from-[#2E2A24] to-[#1A1815]'} border border-[#00f0ff]/30 rounded-3xl p-8 md:p-12 flex flex-col gap-10 items-start mb-24 shadow-2xl relative overflow-hidden`}>
+             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#00f0ff]/5 rounded-full blur-[80px] pointer-events-none"></div>
              <div className="flex items-center gap-6 relative z-10 w-full border-b border-white/10 pb-6">
-                <div className="shrink-0 w-16 h-16 bg-[#C9A66B]/10 rounded-2xl flex items-center justify-center border border-[#C9A66B]/30">
-                   <Target size={32} className="text-[#C9A66B]" />
+                <div className="shrink-0 w-16 h-16 bg-[#00f0ff]/10 rounded-2xl flex items-center justify-center border border-[#00f0ff]/30">
+                   <Target size={32} className="text-[#00f0ff]" />
                 </div>
                 <div>
                    <h4 className="text-3xl font-bold mb-1">Trivia Geologi</h4>
-                   <p className="text-[#C9A66B] text-sm">Tahukah kamu tentang fakta-fakta mencengangkan ini?</p>
+                   <p className="text-[#00f0ff] text-sm">Tahukah kamu tentang fakta-fakta mencengangkan ini?</p>
                 </div>
              </div>
-             
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10 w-full">
                 {funFacts.map((fact, idx) => (
-                   <div key={idx} className="flex gap-4 items-start bg-black/20 p-5 rounded-2xl border border-white/5 hover:border-[#C9A66B]/30 transition-colors hover:-translate-y-1">
-                      <div className="mt-1 w-6 h-6 rounded-full bg-[#C9A66B]/20 flex items-center justify-center shrink-0">
-                         <div className="w-2 h-2 rounded-full bg-[#C9A66B] shadow-[0_0_8px_#C9A66B]"></div>
+                   <div key={idx} className="flex gap-4 items-start bg-black/20 p-5 rounded-2xl border border-white/5 hover:border-[#00f0ff]/30 transition-colors hover:-translate-y-1">
+                      <div className="mt-1 w-6 h-6 rounded-full bg-[#00f0ff]/20 flex items-center justify-center shrink-0">
+                         <div className="w-2 h-2 rounded-full bg-[#00f0ff] shadow-[0_0_8px_#00f0ff]"></div>
                       </div>
                       <p className="text-sm opacity-90 leading-relaxed font-medium">{fact}</p>
                    </div>
                 ))}
              </div>
           </div>
-
-          {/* Visi Misi & Pengembang */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-10">
-             {/* Kenapa Web Ini Dibuat */}
-             <div className={`md:col-span-8 ${cardBg} border border-[#C9A66B]/20 rounded-3xl p-8 md:p-10 backdrop-blur-sm relative overflow-hidden`}>
-                <BookOpen className="absolute -bottom-10 -right-10 text-white/5 rotate-[-15deg]" size={200} />
-                <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                   <Activity className="text-[#C9A66B]"/> Kenapa Web Ini Dibuat?
-                </h3>
-                <p className="opacity-70 leading-relaxed text-sm md:text-base space-y-4">
-                   <span className="block mb-3">Teknologi modern memberikan kemudahan yang luar biasa, namun studi mikroskopis tentang batuan seringkali masih terbatas pada fasilitas laboratorium tertutup. <b className="text-[#C9A66B]">Ambasalt Web App</b> lahir dari inisiatif untuk menjembatani jarak tersebut.</span>
-                   <span className="block mb-3">Aplikasi web ini dirancang khusus untuk mempermudah identifikasi mineral dan analisis sayatan tipis batuan secara digital, responsif, dan interaktif. Kami berupaya mengubah proses pembelajaran petrologi dan mineralogi yang rumit menjadi visualisasi *dashboard* yang menarik.</span>
-                   <span className="block">Dengan adanya platform simulasi *offline-ready* dan integrasi API AI, mahasiswa geologi maupun eksplorator lapangan dapat terus belajar dan menganalisis batuan kapan saja, di mana saja, tanpa harus selalu bergantung pada mikroskop fisik.</span>
-                </p>
-             </div>
-
-             {/* Salam Hangat & Informasi Pencipta */}
-             <div className={`md:col-span-4 ${isBlackMode ? 'bg-zinc-900' : 'bg-gradient-to-b from-[#C9A66B]/10 to-[#1A1815]'} border border-[#C9A66B]/30 rounded-3xl p-8 md:p-10 flex flex-col justify-center text-center`}>
-                <Heart className="mx-auto text-[#C9A66B] mb-6 animate-bounce" size={40} />
-                <h3 className="text-xl font-bold mb-4">Salam Hangat!</h3>
-                <p className="opacity-70 text-sm leading-relaxed italic mb-8">
-                   "Dari bumi kita belajar, untuk bumi kita mengabdi. Semoga Ambasalt mempermudah jalan eksplorasi Anda."
-                </p>
-                <div className="mt-auto">
-                   <div className="w-12 h-1 bg-[#C9A66B] mx-auto mb-4 rounded-full"></div>
-                   <p className="font-bold text-[#C9A66B] tracking-widest text-sm uppercase">Pencipta & Pengembang</p>
-                   <p className="text-base font-semibold mt-1 text-white">Kelompok 23</p>
-                   <p className="text-xs mt-0.5 opacity-80">Geologi Ambasalt ITERA</p>
-                </div>
-             </div>
-          </div>
        </div>
 
-       {/* Footer Pembuat Web */}
        <footer className={`w-full ${isBlackMode ? 'bg-[#000000]' : 'bg-[#0a0908]'} border-t border-white/10 py-10 mt-auto relative z-20 shrink-0`}>
           <div className="max-w-7xl mx-auto px-6 md:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
              <div className="text-center md:text-left flex items-center gap-4">
-                <div className={`w-12 h-12 ${innerCardBg} rounded-full flex items-center justify-center border border-white/10`}>
-                   <Hexagon className="text-[#C9A66B]" size={20} />
+                <div className={`w-12 h-12 ${innerCardBg} rounded-full flex items-center justify-center border border-white/10 bg-gradient-to-br from-[#00f0ff] to-[#0066ff]`}>
+                   <Microscope className="text-[#030712]" size={20} />
                 </div>
                 <div>
-                    <h4 className="font-bold text-lg tracking-wide">Ambasalt Web App</h4>
-                    <p className="opacity-50 text-xs mt-1 uppercase tracking-wider">Created by Kelompok 23</p>
+                    <h4 className="font-bold text-lg tracking-wide">Ambasalt Engine</h4>
+                    <p className="opacity-50 text-xs mt-1 uppercase tracking-wider">+ GEO-LENS v2.5</p>
                 </div>
              </div>
-             
              <div className="text-center md:text-right">
                 <p className="opacity-70 text-sm mb-1">
-                   Diciptakan dan dikembangkan untuk studi kebumian oleh <span className="font-bold text-[#C9A66B]">Kelompok 23</span>
+                   Teknologi AI untuk analisis geologi oleh <span className="font-bold text-[#00f0ff]">Kelompok 23 ITERA</span>
                 </p>
                 <p className="text-xs opacity-50">
-                   Tim Geologi Ambasalt Institut Teknologi Sumatera (ITERA)
+                   Digitalisasi petrologi dan mineralogi untuk masa depan
                 </p>
-                <div className="flex items-center justify-center md:justify-end gap-4 mt-3">
-                   <a href="#" className="opacity-40 hover:opacity-100 transition-colors" title="Website"><Globe2 size={16}/></a>
-                   <a href="#" className="opacity-40 hover:opacity-100 transition-colors" title="Email"><Mail size={16}/></a>
-                   <a href="#" className="opacity-40 hover:opacity-100 transition-colors" title="GitHub"><Github size={16}/></a>
-                </div>
-                <p className="opacity-30 text-[10px] mt-4 tracking-widest uppercase">© 2026 Seluruh Hak Cipta Dilindungi</p>
              </div>
           </div>
        </footer>
 
-       {/* POP-UP MODAL UNTUK INFO KARTU */}
        {selectedTopic && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-             <div className={`${innerCardBg} border border-[#C9A66B]/30 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-300`}>
-                {/* Close Button */}
+             <div className={`${innerCardBg} border border-[#00f0ff]/30 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-300`}>
                 <button 
                   onClick={() => setSelectedTopic(null)}
-                  className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 hover:bg-[#C9A66B] rounded-full flex items-center justify-center backdrop-blur-md transition-colors"
+                  className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 hover:bg-[#00f0ff] rounded-full flex items-center justify-center backdrop-blur-md transition-colors"
                 >
                    <X size={20} className="text-white" />
                 </button>
-                
-                {/* Header Image */}
                 <div className="h-48 md:h-64 w-full relative">
                    <div className={`absolute inset-0 bg-gradient-to-t ${isBlackMode ? 'from-black' : 'from-[#1A1815]'} to-transparent z-10`}></div>
                    <img src={selectedTopic.image} alt={selectedTopic.title} className="w-full h-full object-cover" />
@@ -848,13 +786,11 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
                       {selectedTopic.title}
                    </h2>
                 </div>
-
-                {/* Content */}
                 <div className="p-6 md:p-10 max-h-[50vh] overflow-y-auto custom-scrollbar">
                    <div className="space-y-6">
                       {selectedTopic.modalData.map((data, idx) => (
                          <div key={idx} className={`${cardBg} border border-white/5 p-5 rounded-2xl`}>
-                            <h4 className="text-lg font-bold text-[#C9A66B] mb-2">{data.label}</h4>
+                            <h4 className="text-lg font-bold text-[#00f0ff] mb-2">{data.label}</h4>
                             <p className="opacity-80 text-sm md:text-base leading-relaxed">{data.text}</p>
                          </div>
                       ))}
@@ -863,12 +799,13 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
              </div>
           </div>
        )}
-
     </div>
   );
 }
 
-// --- 3. SELECTION SCREEN (LAYER 3 - METODE ANALISIS) ---
+// ============================================
+// SELECTION SCREEN
+// ============================================
 function SelectionScreen({ onSelect, onBack, onLogout, user, isBlackMode, toggleTheme }) {
   const navBg = isBlackMode ? 'bg-[#000000]/80' : 'bg-[#1A1815]/80';
   const cardBg = isBlackMode ? 'bg-zinc-900/60' : 'bg-[#2E2A24]/40';
@@ -876,14 +813,13 @@ function SelectionScreen({ onSelect, onBack, onLogout, user, isBlackMode, toggle
 
   const cards = [
     { id: 'rock', title: 'Hand Specimen', desc: 'Identifikasi batuan skala makroskopis (beku, sedimen, metamorf).', icon: <Mountain size={32} />, color: '#3b82f6' },
-    { id: 'thin_section', title: 'Thin Section', desc: 'Analisis mikroskopis polarisasi (PPL/XPL) dengan point counting.', icon: <Microscope size={32} />, color: '#C9A66B' },
-    { id: 'mineral', title: 'Determinasi Mineral', desc: 'Identifikasi spesies mineral berdasarkan sifat fisik kristal.', icon: <Gem size={32} />, color: '#10b981' },
+    { id: 'thin_section', title: 'Thin Section Analysis', desc: 'Analisis mikroskopis polarisasi (PPL/XPL) dengan AI point counting.', icon: <Microscope size={32} />, color: '#00f0ff' },
+    { id: 'mineral', title: 'Determinasi Mineral', desc: 'Identifikasi spesies mineral berdasarkan sifat fisik kristal dan optik.', icon: <Gem size={32} />, color: '#10b981' },
   ];
 
   return (
     <div className="h-full w-full flex flex-col font-sans overflow-y-auto overflow-x-hidden relative custom-scrollbar">
-       {/* Ambient Light */}
-       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#5C6B4F]/5 rounded-full blur-[120px] pointer-events-none"></div>
+       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#00f0ff]/5 rounded-full blur-[120px] pointer-events-none"></div>
 
        <nav className={`flex justify-between items-center px-6 md:px-8 h-20 w-full relative z-10 border-b border-white/5 shrink-0 ${navBg} backdrop-blur-md`}>
           <button onClick={onBack} className={`flex items-center gap-2 opacity-70 hover:opacity-100 transition-colors ${cardBg} px-4 py-2 rounded-full border border-white/5`}>
@@ -892,14 +828,14 @@ function SelectionScreen({ onSelect, onBack, onLogout, user, isBlackMode, toggle
 
           <div className="flex items-center gap-3">
              <span className="font-bold text-xl tracking-tight">Ambasalt</span>
-             <span className={`text-[10px] ${innerCardBg} px-2 py-0.5 rounded text-[#C9A66B] border border-[#C9A66B]/30`}>ANALISIS</span>
+             <span className={`text-[10px] ${innerCardBg} px-2 py-0.5 rounded text-[#00f0ff] border border-[#00f0ff]/30`}>GEO-LENS</span>
           </div>
 
           <div className="flex items-center gap-4">
              <button onClick={toggleTheme} className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all hidden sm:flex" title="Ganti Tema">
                 {isBlackMode ? <Sun size={18} className="text-amber-200" /> : <Moon size={18} className="text-slate-300" />}
              </button>
-             <span className="text-sm opacity-70 hidden md:inline">Halo, {user?.name || 'Geologist'}</span>
+             <span className="text-sm opacity-70 hidden md:inline">{user?.name || 'Geologist'}</span>
              <button onClick={onLogout} className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 opacity-70 hover:opacity-100 transition-all text-xs font-bold uppercase tracking-wider">
                 <LogOut size={14} /> <span className="hidden sm:block">Keluar</span>
              </button>
@@ -909,7 +845,7 @@ function SelectionScreen({ onSelect, onBack, onLogout, user, isBlackMode, toggle
        <div className="flex-1 flex flex-col items-center justify-start md:justify-center py-10 md:py-0 max-w-6xl mx-auto w-full relative z-10 shrink-0 px-6">
           <div className="text-center mb-12 space-y-4">
              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Pilih Metode Analisis</h1>
-             <p className="opacity-60 text-lg max-w-2xl mx-auto">Pilih jenis sampel yang akan Anda identifikasi menggunakan engine Ambasalt.</p>
+             <p className="opacity-60 text-lg max-w-2xl mx-auto">Gunakan teknologi GEO-LENS terdepan untuk analisis sampel geologi Anda</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full pb-10">
@@ -920,14 +856,11 @@ function SelectionScreen({ onSelect, onBack, onLogout, user, isBlackMode, toggle
                   className={`group relative ${cardBg} backdrop-blur-sm border border-white/10 rounded-3xl p-8 cursor-pointer overflow-hidden transition-all duration-300 hover:bg-black/40 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]`}
                 >
                    <div className="absolute top-0 right-0 w-32 h-32 opacity-5 rounded-bl-[100px] -mr-6 -mt-6 transition-transform group-hover:scale-110" style={{backgroundColor: card.color}}></div>
-                   
                    <div className={`w-16 h-16 rounded-2xl ${innerCardBg} border border-white/10 flex items-center justify-center mb-6 transition-transform duration-300 shadow-lg`} style={{color: card.color}}>
                       {card.icon}
                    </div>
-                   
                    <h3 className="text-xl font-bold mb-3 transition-colors">{card.title}</h3>
                    <p className="opacity-60 text-sm leading-relaxed mb-8">{card.desc}</p>
-                   
                    <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest opacity-50 group-hover:opacity-100 transition-colors" style={{color: card.color}}>
                       Buka Modul <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                    </div>
@@ -939,7 +872,9 @@ function SelectionScreen({ onSelect, onBack, onLogout, user, isBlackMode, toggle
   );
 }
 
-// --- KOMPONEN INTERACTIVE GRID 8x8 (64 SEL) UNTUK TITIK POINT COUNTING AKURAT ---
+// ============================================
+// INTERACTIVE GRID COMPONENT
+// ============================================
 function InteractiveGrid({ gridData, selectedCell, onSelect }) {
   if (!gridData || gridData.length === 0) return null;
   return (
@@ -948,7 +883,7 @@ function InteractiveGrid({ gridData, selectedCell, onSelect }) {
          <div
            key={cell.index}
            onClick={() => onSelect(cell.index)}
-           className={`border-[0.5px] border-white/15 hover:bg-white/20 cursor-pointer transition-all ${selectedCell === cell.index ? 'ring-2 ring-[#C9A66B] z-30' : ''}`}
+           className={`border-[0.5px] border-white/15 hover:bg-white/20 cursor-pointer transition-all ${selectedCell === cell.index ? 'ring-2 ring-[#00f0ff] z-30' : ''}`}
            style={{ backgroundColor: selectedCell === cell.index ? cell.colorHex : 'transparent' }}
          />
       ))}
@@ -956,11 +891,13 @@ function InteractiveGrid({ gridData, selectedCell, onSelect }) {
   );
 }
 
-// --- 4. MAIN APP (LAYER 4 - ALAT ANALISIS) ---
+// ============================================
+// MAIN APP COMPONENT (Analisis Utama)
+// ============================================
 function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isBlackMode }) {
   const isThinSection = mode === 'thin_section';
 
-  // --- STATE ---
+  // ---- STATE ----
   const [analysisMode, setAnalysisMode] = useState('image'); 
   const [pplImage, setPplImage] = useState(null);
   const [xplImage, setXplImage] = useState(null);
@@ -975,18 +912,21 @@ function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isB
   const [stageRotation, setStageRotation] = useState(0);
   const [gridData, setGridData] = useState([]); 
   const [selectedCell, setSelectedCell] = useState(null); 
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [lightIntensity, setLightIntensity] = useState(85);
 
-  // Config Themes
+  // ---- CONFIG ----
   const sidebarBg = isBlackMode ? 'bg-zinc-950' : 'bg-[#2E2A24]/60';
   const innerCardBg = isBlackMode ? 'bg-zinc-900/80' : 'bg-[#2E2A24]/40';
   const pureBg = isBlackMode ? 'bg-black' : 'bg-[#1A1815]/80';
 
   const config = {
-    thin_section: { title: "Thin Section Analysis", colorCode: "#C9A66B" },
-    rock: { title: "Hand Specimen Identification", colorCode: "#3b82f6" },
-    mineral: { title: "Mineral Specimen Analysis", colorCode: "#10b981" },
+    thin_section: { title: "Thin Section Analysis", colorCode: "#00f0ff" },
+    rock: { title: "Hand Specimen Analysis", colorCode: "#3b82f6" },
+    mineral: { title: "Mineral Identification", colorCode: "#10b981" },
   }[mode];
 
+  // ---- FILE UPLOAD ----
   const handleFileUpload = (e, type) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1000,7 +940,7 @@ function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isB
     reader.readAsDataURL(file);
   };
 
-  // --- FUNGSI UTAMA DEFENSIF: FETCH DENGAN EXPONENTIAL BACKOFF RETRY ---
+  // ---- FETCH WITH RETRY ----
   const fetchWithRetry = async (url, options, retries = 5, delay = 1000) => {
     try {
       const response = await fetch(url, options);
@@ -1023,6 +963,7 @@ function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isB
     }
   };
 
+  // ---- ANALISIS UTAMA ----
   const analyzeSample = async () => {
     if (loading) return; 
     setLoading(true);
@@ -1034,39 +975,26 @@ function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isB
     
     setTimeout(() => setLoadingStep("Mencocokkan Pola Kristal..."), 1000);
     setTimeout(() => setLoadingStep("Menghitung Persentase Mineral..."), 2000);
-    setTimeout(() => setLoadingStep("Menyusun Laporan..."), 3000);
+    setTimeout(() => setLoadingStep("Menyusun Laporan Detail..."), 3000);
 
     setTimeout(async () => {
         try {
             if (!pplImage) {
-                throw new Error("Silakan unggah gambar sampel terlebih dahulu untuk analisis AI.");
+                throw new Error("Silakan unggah gambar sampel untuk analisis GEO-LENS AI.");
             }
 
-            // Gunakan model Gemini 2.5 Flash yang sangat stabil dengan API Key permanen Andro
             const modelName = "gemini-2.5-flash";
             const url = `/api/gemini`;
             const mimeType = pplImage.split(';')[0].split(':')[1];
             const base64Data = pplImage.split(',')[1];
 
-            const promptText = `Anda adalah ahli geologi profesional (petrologi dan mineralogi). Analisis gambar sampel geologi ini (Fokus analisis: ${config.title}). 
-Identifikasi batuan atau mineral dominan yang ada di gambar tersebut berdasarkan ciri visual, tekstur, dan warnanya. Berikan akurasi estimasi tinggi (80-90%).
-PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus persis seperti ini:
-{
-  "rockName": "Nama Batuan/Mineral (Contoh: Basalt, Kuarsa)",
-  "classificationType": "Tipe Klasifikasi (Contoh: Batuan Beku Ekstrusif)",
-  "description": "Deskripsi geologi komprehensif mengenai tekstur, struktur, dan kemungkinan proses pembentukannya berdasarkan gambar.",
-  "minerals": [
-    { "name": "Nama Mineral 1", "percentage": "Estimasi %", "description": "Sifat optik/fisik" },
-    { "name": "Nama Mineral 2", "percentage": "Estimasi %", "description": "Sifat optik/fisik" }
-  ]
-}`;
+            const promptText = `Anda adalah ahli geologi profesional bersertifikat dalam petrologi dan mineralogi. Analisis gambar sampel geologi ini dengan detail tinggi untuk: ${config.title}.\r\nIdentifikasi mineral/batuan dominan dengan akurasi 80-95% berdasarkan ciri visual, tekstur, warna, dan struktur kristal.\r\nJAWAB HANYA DALAM FORMAT JSON VALID:\r\n{\r\n  \"rockName\": \"Nama Batuan/Mineral Utama\",\r\n  \"classificationType\": \"Tipe Klasifikasi IUGS/Folk\",\r\n  \"description\": \"Deskripsi tekstur, struktur, dan proses pembentukannya\",\r\n  \"minerals\": [\r\n    { \"name\": \"Mineral 1\", \"percentage\": \"Est %\", \"description\": \"Sifat optik/fisik\" }\r\n  ]\r\n}`;
 
             const response = await fetchWithRetry(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{
-                        role: "user",
+                    contents: [{\r\n                        role: "user",
                         parts: [
                             { text: promptText },
                             { inlineData: { mimeType: mimeType, data: base64Data } }
@@ -1084,24 +1012,21 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
             if (textContent) {
                 const apiResult = JSON.parse(textContent);
 
-                // --- ALGORITMA DISTRIBUSI SPASIAL GRID 8x8 BERBASIS MATEMATIS PERSENTASE AI ---
+                // ---- ALGORITMA GRID 8x8 BERBASIS PERSENTASE ----
                 if (mode === 'thin_section') {
-                    const totalCells = 64; // Grid 8x8
+                    const totalCells = 64;
                     const tempGrid = [];
                     
-                    // Parsing persentase numerik dari setiap mineral secara akurat
                     const parsedMinerals = apiResult.minerals.map((m, idx) => {
                         const numericPct = parseFloat(m.percentage.replace(/[^0-9.]/g, '')) || 0;
                         return { ...m, numericPct, index: idx };
                     });
 
-                    // Hitung total persentase untuk normalisasi jika AI memberikan total tidak pas 100%
                     const totalPct = parsedMinerals.reduce((sum, m) => sum + m.numericPct, 0) || 100;
 
                     let allocatedMinerals = [];
                     let totalAssigned = 0;
 
-                    // Alokasi proporsional awal menggunakan Math.floor agar tidak melebihi 64 titik
                     parsedMinerals.forEach(m => {
                         const count = Math.floor((m.numericPct / totalPct) * totalCells);
                         m.allocatedCount = count;
@@ -1111,13 +1036,12 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                         }
                     });
 
-                    // Distribusi selisih sisa (leftovers) secara adil ke mineral dengan sisa pecahan terbesar
                     let leftovers = totalCells - totalAssigned;
                     if (leftovers > 0 && parsedMinerals.length > 0) {
                         parsedMinerals.sort((a, b) => {
                             const remainA = ((a.numericPct / totalPct) * totalCells) - a.allocatedCount;
                             const remainB = ((b.numericPct / totalPct) * totalCells) - b.allocatedCount;
-                            return remainB - remainA; // Urutkan sisa pecahan terbesar
+                            return remainB - remainA;
                         });
                         
                         let i = 0;
@@ -1128,20 +1052,19 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                         }
                     }
 
-                    // Pengacakan spasial (Fisher-Yates Shuffle) untuk mensimulasikan sebaran natural kristal
+                    // Fisher-Yates Shuffle untuk distribusi natural
                     for (let i = allocatedMinerals.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
                         [allocatedMinerals[i], allocatedMinerals[j]] = [allocatedMinerals[j], allocatedMinerals[i]];
                     }
 
-                    // Bangun gridData final 8x8
                     for (let i = 0; i < totalCells; i++) {
                         const min = allocatedMinerals[i];
                         tempGrid.push({
                             index: i,
                             mineral: min.name,
                             colorHex: getMineralColor(min.name),
-                            feature: min.description || "Komponen Utama Batuan"
+                            feature: min.description || "Komponen Batuan"
                         });
                     }
                     setGridData(tempGrid);
@@ -1149,11 +1072,11 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
 
                 setResult(apiResult);
             } else {
-                throw new Error("Format respons AI dari server tidak valid / tidak dikenali.");
+                throw new Error("Format respons AI tidak valid.");
             }
         } catch (error) {
             console.error("AI Error:", error);
-            setErrorMsg(error.message || "Terjadi kesalahan sistem saat menghubungi server Gemini API.");
+            setErrorMsg(error.message || "Kesalahan sistem saat menghubungi Gemini API.");
         } finally {
             setLoading(false);
         }
@@ -1163,55 +1086,55 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
   return (
     <div className="flex h-screen overflow-hidden font-sans">
       
-      {/* SIDEBAR KIRI */}
+      {/* ===== SIDEBAR KIRI ===== */}
       <aside className={`w-20 md:w-64 ${sidebarBg} border-r border-white/5 flex flex-col justify-between shrink-0 z-20 transition-colors`}>
          <div className="overflow-y-auto flex-1 custom-scrollbar">
             <div className="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-white/5 shrink-0">
-               <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[#1A1815] mr-0 md:mr-3 shrink-0" style={{backgroundColor: config.colorCode}}>
+               <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[#030712] mr-0 md:mr-3 shrink-0 glow-cyan" style={{backgroundColor: config.colorCode}}>
                   {mode === 'thin_section' ? <Microscope size={18} /> : mode === 'rock' ? <Mountain size={18} /> : <Gem size={18} />}
                </div>
-               <span className="hidden md:block font-bold tracking-tight">Ambasalt</span>
+               <span className="hidden md:block font-bold tracking-tight">GEO-LENS</span>
             </div>
             
             <div className="p-4 space-y-2">
-               <div className="text-[10px] font-bold uppercase tracking-widest opacity-40 px-2 hidden md:block mb-2">Navigasi Utama</div>
+               <div className="text-[10px] font-bold uppercase tracking-widest opacity-40 px-2 hidden md:block mb-2">Navigation</div>
                <button onClick={onBackToDashboard} className="w-full flex items-center justify-center md:justify-start gap-3 md:px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
                   <BookOpen size={18} style={{color: config.colorCode}} />
                   <span className="hidden md:block text-sm font-medium">Info Geologi</span>
                </button>
                <button onClick={onBackToSelection} className="w-full flex items-center justify-center md:justify-start gap-3 md:px-3 py-2.5 rounded-xl opacity-60 hover:bg-white/5 hover:opacity-100 transition-all">
                   <ArrowRight className="rotate-180" size={18} />
-                  <span className="hidden md:block text-sm font-medium">Ganti Analisis</span>
+                  <span className="hidden md:block text-sm font-medium">Ganti Mode</span>
                </button>
             </div>
          </div>
 
          <div className="p-4 border-t border-white/5 shrink-0">
             <div className="flex items-center justify-center md:justify-start gap-3 md:px-2">
-               <div className="w-8 h-8 rounded-full bg-black border border-[#C9A66B]/30 flex items-center justify-center shrink-0">
-                  <User size={14} className="text-[#C9A66B]" />
+               <div className="w-8 h-8 rounded-full bg-black border border-[#00f0ff]/30 flex items-center justify-center shrink-0">
+                  <User size={14} className="text-[#00f0ff]" />
                </div>
                <div className="hidden md:block overflow-hidden">
                   <div className="text-xs font-bold truncate">{user?.name || 'Geologist'}</div>
-                  <div className="text-[10px] opacity-40">Active Session</div>
+                  <div className="text-[10px] opacity-40">Active</div>
                </div>
             </div>
          </div>
       </aside>
 
-      {/* MAIN CONTENT AREA */}
+      {/* ===== MAIN CONTENT ===== */}
       <main className="flex-1 flex flex-col min-w-0 relative">
          <header className="h-16 border-b border-white/5 bg-black/20 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-10">
             <div>
                <h2 className="text-sm font-bold flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full" style={{backgroundColor: config.colorCode}}></span>
-                  {config.title}
+                  <Radio size={12} style={{color: config.colorCode, fill: config.colorCode}} />
+                  {config.title} × AI-Powered
                </h2>
             </div>
             <div className="flex items-center gap-3">
                <div className="bg-black/40 rounded-lg p-1 flex border border-white/5">
-                  <button onClick={() => {setAnalysisMode('image'); setResult(null);}} className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${analysisMode === 'image' ? 'bg-[#5C6B4F] text-white shadow' : 'opacity-50 hover:opacity-100'}`}>Foto</button>
-                  <button onClick={() => {setAnalysisMode('video'); setResult(null);}} className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${analysisMode === 'video' ? 'bg-[#5C6B4F] text-white shadow' : 'opacity-50 hover:opacity-100'}`}>Video</button>
+                  <button onClick={() => {setAnalysisMode('image'); setResult(null);}} className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${analysisMode === 'image' ? 'bg-[#00f0ff] text-black shadow' : 'opacity-50 hover:opacity-100'}`}>Foto</button>
+                  <button onClick={() => {setAnalysisMode('video'); setResult(null);}} className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${analysisMode === 'video' ? 'bg-[#00f0ff] text-black shadow' : 'opacity-50 hover:opacity-100'}`}>Video</button>
                </div>
             </div>
          </header>
@@ -1219,38 +1142,38 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
          <div className="flex-1 overflow-y-auto p-6 scroll-smooth custom-scrollbar">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto">
                
-               {/* KOLOM KIRI: UPLOAD & KONTROL */}
+               {/* ===== KOLOM KIRI: UPLOAD & KONTROL ===== */}
                <div className="lg:col-span-6 space-y-6">
                   <div className={`${innerCardBg} border border-white/10 rounded-2xl p-1 shadow-xl transition-colors`}>
                      <div className={`${pureBg} rounded-xl p-6 relative overflow-hidden transition-colors`}>
                         
-                        {/* AREA UPLOAD MEDIA */}
+                        {/* AREA UPLOAD */}
                         <div className="grid grid-cols-2 gap-4">
                            {analysisMode === 'image' ? (
                               <>
-                                 {/* PPL Image */}
+                                 {/* PPL IMAGE */}
                                  <div className={`relative group ${!isThinSection ? 'col-span-2' : ''}`}>
-                                    <div className={`relative border-2 border-dashed border-[#F5F1E8]/20 bg-black/30 hover:bg-black/50 hover:border-[#C9A66B] transition-all flex items-center justify-center overflow-hidden ${isThinSection ? 'rounded-full aspect-square shadow-[0_0_40px_rgba(0,0,0,0.5)_inset]' : 'rounded-xl aspect-video'}`}>
+                                    <div className={`relative border-2 border-dashed border-[#F5F1E8]/20 bg-black/30 hover:bg-black/50 hover:border-[#00f0ff] transition-all flex items-center justify-center overflow-hidden ${isThinSection ? 'rounded-full aspect-square shadow-[0_0_40px_rgba(0,240,255,0.2)_inset]' : 'rounded-xl aspect-video'}`}>
                                        {pplImage ? (
-                                          <img src={pplImage} className="absolute inset-0 w-full h-full object-cover transition-transform" style={isThinSection ? {transform: `scale(1.5) rotate(${stageRotation}deg)`} : {}} />
+                                          <img src={pplImage} className="absolute inset-0 w-full h-full object-cover transition-transform" style={isThinSection ? {transform: `scale(${zoomLevel}) rotate(${stageRotation}deg)`} : {}} />
                                        ) : (
                                           <div className="text-center opacity-50 p-4">
-                                             {isThinSection ? <Sun className="mx-auto mb-2 opacity-50 text-[#C9A66B]" /> : <Scan className="mx-auto mb-2 opacity-50" />}
+                                             {isThinSection ? <Sun className="mx-auto mb-2 opacity-50 text-[#00f0ff]" /> : <Scan className="mx-auto mb-2 opacity-50" />}
                                              <span className="text-[10px] font-bold uppercase tracking-widest block">Upload {isThinSection ? 'PPL' : 'Foto'}</span>
                                           </div>
                                        )}
                                        {isThinSection && usePointCounting && <InteractiveGrid gridData={gridData} selectedCell={selectedCell} onSelect={setSelectedCell} />}
                                        <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'ppl')} className={`absolute inset-0 opacity-0 cursor-pointer ${usePointCounting ? 'pointer-events-none' : ''}`} />
                                     </div>
-                                    {isThinSection && <div className="absolute bottom-[-20px] left-0 right-0 text-center text-[9px] opacity-40 font-mono pointer-events-none z-0">NICOL SEJAJAR (PPL)</div>}
+                                    {isThinSection && <div className="absolute bottom-[-20px] left-0 right-0 text-center text-[9px] opacity-40 font-mono pointer-events-none z-0">PPL: NICOL SEJAJAR</div>}
                                  </div>
 
-                                 {/* XPL Image */}
+                                 {/* XPL IMAGE */}
                                  {isThinSection && (
                                     <div className="relative group">
-                                       <div className="relative border-2 border-dashed border-[#F5F1E8]/20 bg-black/30 hover:bg-black/50 hover:border-[#C9A66B] transition-all flex items-center justify-center overflow-hidden rounded-full aspect-square shadow-[0_0_40px_rgba(0,0,0,0.5)_inset]">
+                                       <div className="relative border-2 border-dashed border-[#F5F1E8]/20 bg-black/30 hover:bg-black/50 hover:border-[#00f0ff] transition-all flex items-center justify-center overflow-hidden rounded-full aspect-square shadow-[0_0_40px_rgba(0,240,255,0.2)_inset]">
                                           {xplImage ? (
-                                             <img src={xplImage} className="w-full h-full object-cover transition-transform" style={{transform: `scale(1.5) rotate(${stageRotation}deg)`}} />
+                                             <img src={xplImage} className="w-full h-full object-cover transition-transform" style={{transform: `scale(${zoomLevel}) rotate(${stageRotation}deg)`}} />
                                           ) : (
                                              <div className="text-center opacity-50">
                                                 <Moon className="mx-auto mb-2 opacity-50 text-[#5C6B4F]" />
@@ -1260,12 +1183,12 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                                           {usePointCounting && <InteractiveGrid gridData={gridData} selectedCell={selectedCell} onSelect={setSelectedCell} />}
                                           <input type="file" accept="image/*" onChange={(e) => handleFileUpload(e, 'xpl')} className={`absolute inset-0 opacity-0 cursor-pointer ${usePointCounting ? 'pointer-events-none' : ''}`} />
                                        </div>
-                                       <div className="absolute bottom-[-20px] left-0 right-0 text-center text-[9px] opacity-40 font-mono pointer-events-none">NICOL SILANG (XPL)</div>
+                                       <div className="absolute bottom-[-20px] left-0 right-0 text-center text-[9px] opacity-40 font-mono pointer-events-none">XPL: NICOL SILANG</div>
                                     </div>
                                  )}
                               </>
                            ) : (
-                              <div className="col-span-2 relative border-2 border-dashed border-[#F5F1E8]/20 bg-black/30 rounded-xl aspect-video flex items-center justify-center overflow-hidden group hover:border-[#C9A66B] transition-all">
+                              <div className="col-span-2 relative border-2 border-dashed border-[#F5F1E8]/20 bg-black/30 rounded-xl aspect-video flex items-center justify-center overflow-hidden group hover:border-[#00f0ff] transition-all">
                                  {videoUrl ? (
                                     <>
                                        <video key={videoUrl} src={videoUrl} controls className="w-full h-full object-contain z-10 relative" />
@@ -1279,7 +1202,7 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                                  ) : (
                                     <>
                                        <div className="text-center opacity-50">
-                                          <Film className="mx-auto mb-2 opacity-50 text-[#C9A66B]" />
+                                          <Film className="mx-auto mb-2 opacity-50 text-[#00f0ff]" />
                                           <span className="text-[10px] font-bold uppercase tracking-widest block">Upload Video MP4</span>
                                        </div>
                                        <input type="file" accept="video/*" onChange={(e) => handleFileUpload(e, 'video')} className="absolute inset-0 opacity-0 cursor-pointer z-30" />
@@ -1289,21 +1212,21 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                            )}
                         </div>
 
-                        {/* KONTROL */}
+                        {/* KONTROL MICROSCOPE */}
                         <div className="mt-8 pt-6 border-t border-white/10">
                            {isThinSection && analysisMode === 'image' && (
                               <div className="mb-6 space-y-4">
                                  
-                                 {/* UI INFO BOX UNTUK POINT COUNTING */}
+                                 {/* POINT COUNTING INFO */}
                                  {usePointCounting && selectedCell !== null && gridData.length > 0 && (
-                                     <div className="p-4 rounded-xl border border-[#C9A66B]/50 bg-[#C9A66B]/10 flex items-center justify-between mb-4 animate-in slide-in-from-top-2">
+                                     <div className="p-4 rounded-xl border border-[#00f0ff]/50 bg-[#00f0ff]/10 flex items-center justify-between mb-4 animate-in slide-in-from-top-2">
                                          <div className="flex items-center gap-3">
-                                             <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(255,255,255,0.2)]" style={{backgroundColor: gridData.find(c => c.index === selectedCell)?.colorHex}}>
+                                             <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(0,240,255,0.3)]" style={{backgroundColor: gridData.find(c => c.index === selectedCell)?.colorHex}}>
                                                  <MousePointer2 size={14} className="text-white drop-shadow-md" />
                                              </div>
                                              <div>
-                                                 <div className="text-[10px] uppercase tracking-widest opacity-60 font-bold mb-0.5">Identifikasi Titik #{selectedCell + 1} / 64</div>
-                                                 <div className="text-[#C9A66B] font-bold text-sm">{gridData.find(c => c.index === selectedCell)?.mineral || 'Mineral Tidak Diketahui'}</div>
+                                                 <div className="text-[10px] uppercase tracking-widest opacity-60 font-bold mb-0.5">Titik #{selectedCell + 1} / 64</div>
+                                                 <div className="text-[#00f0ff] font-bold text-sm">{gridData.find(c => c.index === selectedCell)?.mineral || 'Unknown'}</div>
                                                  <div className="text-[10px] opacity-40 mt-0.5">Sifat: {gridData.find(c => c.index === selectedCell)?.feature}</div>
                                              </div>
                                          </div>
@@ -1313,24 +1236,53 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                                      </div>
                                  )}
 
-                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm opacity-80 font-medium">Rotasi Meja Objek (Stage)</span>
-                                    <span className="text-xs text-[#C9A66B] font-mono font-bold bg-[#C9A66B]/10 px-2 py-1 rounded">{stageRotation}°</span>
+                                 {/* KONTROL ZOOM */}
+                                 <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                       <span className="text-sm opacity-80 font-medium">Digital Lens Zoom</span>
+                                       <span className="text-xs text-[#00f0ff] font-mono font-bold bg-[#00f0ff]/10 px-2 py-1 rounded">{zoomLevel.toFixed(1)}x</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                       <button onClick={() => setZoomLevel(Math.max(1, zoomLevel - 0.5))} className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition-colors"><Minus size={14} /></button>
+                                       <input type="range" min="1" max="8" step="0.5" value={zoomLevel} onChange={(e) => setZoomLevel(parseFloat(e.target.value))} 
+                                          className="flex-1 h-2 bg-black rounded-lg appearance-none cursor-pointer accent-[#00f0ff]" />
+                                       <button onClick={() => setZoomLevel(Math.min(8, zoomLevel + 0.5))} className="p-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition-colors"><Plus size={14} /></button>
+                                    </div>
                                  </div>
-                                 <input type="range" min="0" max="360" value={stageRotation} onChange={(e) => setStageRotation(e.target.value)} 
-                                    className="w-full h-2 bg-black rounded-lg appearance-none cursor-pointer accent-[#C9A66B]" />
-                                 
+
+                                 {/* KONTROL ROTASI */}
+                                 <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                       <span className="text-sm opacity-80 font-medium">Rotasi Stage (Objek)</span>
+                                       <span className="text-xs text-[#00f0ff] font-mono font-bold bg-[#00f0ff]/10 px-2 py-1 rounded">{stageRotation}°</span>
+                                    </div>
+                                    <input type="range" min="0" max="360" value={stageRotation} onChange={(e) => setStageRotation(e.target.value)} 
+                                       className="w-full h-2 bg-black rounded-lg appearance-none cursor-pointer accent-[#00f0ff]" />
+                                 </div>
+
+                                 {/* KONTROL CAHAYA */}
+                                 <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                       <span className="text-sm opacity-80 font-medium">Aperture Light Intensity</span>
+                                       <span className="text-xs text-[#00f0ff] font-mono font-bold bg-[#00f0ff]/10 px-2 py-1 rounded">{lightIntensity}%</span>
+                                    </div>
+                                    <input type="range" min="10" max="100" value={lightIntensity} onChange={(e) => setLightIntensity(e.target.value)} 
+                                       className="w-full h-2 bg-black rounded-lg appearance-none cursor-pointer accent-[#00f0ff]" />
+                                 </div>
+
+                                 {/* POINT COUNTING TOGGLE */}
                                  <label className="flex items-center gap-3 cursor-pointer mt-4 p-3 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10 transition-colors">
-                                    <input type="checkbox" checked={usePointCounting} onChange={(e) => setUsePointCounting(e.target.checked)} className="w-4 h-4 rounded text-[#C9A66B] accent-[#C9A66B] bg-black border-white/20" />
-                                    <span className="text-sm opacity-80 font-medium">Aktifkan Point Counting Grid Rapat (8x8 - 64 Titik)</span>
+                                    <input type="checkbox" checked={usePointCounting} onChange={(e) => setUsePointCounting(e.target.checked)} className="w-4 h-4 rounded text-[#00f0ff] accent-[#00f0ff] bg-black border-white/20" />
+                                    <span className="text-sm opacity-80 font-medium">Aktifkan Point Counting (8×8 Grid)</span>
                                  </label>
                               </div>
                            )}
                            
+                           {/* TOMBOL ANALISIS */}
                            <button onClick={analyzeSample} disabled={loading || (analysisMode==='image' && !pplImage)} 
-                              className="w-full text-[#1A1815] font-bold py-3.5 rounded-xl hover:shadow-[0_0_20px_rgba(201,166,107,0.4)] hover:-translate-y-0.5 active:translate-y-0 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#C9A66B] to-[#8A6E40]">
+                              className="w-full text-[#030712] font-bold py-3.5 rounded-xl hover:shadow-[0_0_30px_rgba(0,240,255,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#00f0ff] to-[#0066ff]">
                               {loading ? <Scan className="animate-spin" size={20} /> : <Sparkles size={20} />}
-                              {loading ? loadingStep : "Mulai Analisis Ambasalt AI"}
+                              {loading ? loadingStep : "Mulai Analisis GEO-LENS"}
                            </button>
                         </div>
 
@@ -1338,13 +1290,13 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                   </div>
                </div>
 
-               {/* KOLOM KANAN: HASIL ANALISIS */}
+               {/* ===== KOLOM KANAN: HASIL ===== */}
                <div className="lg:col-span-6 space-y-6">
                   {errorMsg && (
                      <div className="bg-red-500/10 border border-red-500/50 text-red-200 p-4 rounded-xl flex items-start gap-3">
                         <AlertCircle className="shrink-0 mt-0.5 text-red-400" size={18} />
                         <div className="text-sm">
-                           <p className="font-bold mb-1">Terjadi Kesalahan Analisis AI:</p>
+                           <p className="font-bold mb-1">Kesalahan Analisis:</p>
                            <p className="opacity-80">{errorMsg}</p>
                         </div>
                      </div>
@@ -1354,20 +1306,20 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                      <div className={`${innerCardBg} border border-white/10 rounded-2xl p-6 shadow-xl animate-in fade-in slide-in-from-bottom-4 duration-500 transition-colors`}>
                         <div className="flex items-start justify-between mb-6">
                            <div>
-                              <div className="text-[10px] font-bold tracking-widest text-[#C9A66B] uppercase mb-1 flex items-center gap-1">
-                                 <CheckCircle size={12} /> Hasil Dari Live API (Gemini)
+                              <div className="text-[10px] font-bold tracking-widest text-[#00f0ff] uppercase mb-1 flex items-center gap-1">
+                                 <CheckCircle size={12} /> Hasil Analisis GEO-LENS
                               </div>
                               <h3 className="text-2xl font-bold">{result.rockName}</h3>
                               <p className="text-sm opacity-60 mt-1">{result.classificationType}</p>
                            </div>
-                           <div className="w-10 h-10 rounded-full bg-[#5C6B4F]/20 border border-[#5C6B4F]/50 flex items-center justify-center text-[#5C6B4F]">
+                           <div className="w-10 h-10 rounded-full bg-[#00f0ff]/20 border border-[#00f0ff]/50 flex items-center justify-center text-[#00f0ff]">
                               <Bot size={20} />
                            </div>
                         </div>
 
                         <div className="space-y-6">
                            <div>
-                              <h4 className="text-xs font-bold opacity-50 uppercase tracking-wider mb-2 flex items-center gap-2"><FileText size={14}/> Deskripsi</h4>
+                              <h4 className="text-xs font-bold opacity-50 uppercase tracking-wider mb-2 flex items-center gap-2"><FileText size={14}/> Deskripsi Geologi</h4>
                               <p className="text-sm opacity-80 leading-relaxed bg-black/40 p-4 rounded-xl border border-white/5">{result.description}</p>
                            </div>
                            
@@ -1375,12 +1327,12 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                               <h4 className="text-xs font-bold opacity-50 uppercase tracking-wider mb-2 flex items-center gap-2"><Gem size={14}/> Komposisi Mineral</h4>
                               <div className="grid gap-3">
                                  {result.minerals.map((min, idx) => (
-                                    <div key={idx} className="bg-black/40 border border-white/5 p-3 rounded-xl flex justify-between items-center group hover:border-[#C9A66B]/50 transition-colors">
+                                    <div key={idx} className="bg-black/40 border border-white/5 p-3 rounded-xl flex justify-between items-center group hover:border-[#00f0ff]/50 transition-colors">
                                        <div>
                                           <div className="font-semibold text-sm">{min.name}</div>
                                           <div className="text-xs opacity-50 mt-0.5">{min.description}</div>
                                        </div>
-                                       <div className="text-[#C9A66B] font-bold text-lg">{min.percentage}</div>
+                                       <div className="text-[#00f0ff] font-bold text-lg">{min.percentage}</div>
                                     </div>
                                  ))}
                               </div>
@@ -1391,7 +1343,7 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
                      <div className="h-full min-h-[400px] border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center text-center p-8 bg-white/5">
                         <Hexagon size={48} className="text-white/10 mb-4" strokeWidth={1} />
                         <h3 className="text-lg font-bold opacity-50 mb-2">Belum Ada Hasil</h3>
-                        <p className="text-sm opacity-30 max-w-sm">Unggah media dan klik tombol analisis untuk melihat klasifikasi sampel dari Ambasalt Engine.</p>
+                        <p className="text-sm opacity-30 max-w-sm">Upload media dan klik tombol analisis untuk melihat hasil klasifikasi dari GEO-LENS AI Engine.</p>
                      </div>
                   )}
                </div>
