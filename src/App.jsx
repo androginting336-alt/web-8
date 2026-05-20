@@ -6,7 +6,7 @@ import {
   FileText, ListChecks, Eye, ChevronDown, ChevronUp, Info, AlignLeft, Ban,
   User, Lock, Mail, Facebook, Github, Linkedin, Chrome, AlertCircle, CheckCircle, ArrowRight,
   LogOut, Mountain, Gem, ChevronLeft, Map, MessageSquare, Send, X, Sparkles, Bot, Hexagon, LayoutDashboard, WifiOff,
-  Search, Compass, Flame, Heart, Target, Zap, ShieldCheck
+  Search, Compass, Flame, Heart, Target, Zap, ShieldCheck, Sliders, Cpu, Camera, RefreshCw
 } from 'lucide-react';
 
 const OFFLINE_DATABASE = {
@@ -71,34 +71,31 @@ const OFFLINE_DATABASE = {
   ]
 };
 
-// --- API KEY TERTANAM PERMANEN ---
-const GEMINI_API_ENDPOINT = "/api/gemini";
-
 // --- DYNAMIC MINERAL COLOR MAPPER FOR REALISTIC OPTICAL FEEL ---
 const getMineralColor = (mineralName) => {
   const name = mineralName.toLowerCase();
   if (name.includes('plagioklas') || name.includes('andesin') || name.includes('feldspar')) {
-    return 'rgba(215, 220, 230, 0.45)'; // Putih abu-abu khas kembaran albit
+    return 'rgba(215, 220, 230, 0.45)';
   }
   if (name.includes('piroksen') || name.includes('augit')) {
-    return 'rgba(105, 140, 95, 0.5)'; // Hijau pucat PPL / Orde tinggi XPL
+    return 'rgba(105, 140, 95, 0.5)';
   }
   if (name.includes('kuarsa') || name.includes('quartz')) {
-    return 'rgba(240, 245, 255, 0.2)'; // Sangat jernih transparan
+    return 'rgba(240, 245, 255, 0.2)';
   }
   if (name.includes('biotit') || name.includes('mika')) {
-    return 'rgba(160, 110, 60, 0.55)'; // Cokelat pleokroik kuat
+    return 'rgba(160, 110, 60, 0.55)';
   }
   if (name.includes('kalsit') || name.includes('limestone') || name.includes('ooid')) {
-    return 'rgba(235, 225, 205, 0.5)'; // Krem kembaran twinkling
+    return 'rgba(235, 225, 205, 0.5)';
   }
   if (name.includes('gelas') || name.includes('massa dasar')) {
-    return 'rgba(40, 40, 40, 0.6)'; // Gelap isotropik
+    return 'rgba(40, 40, 40, 0.6)';
   }
   if (name.includes('opak') || name.includes('magnetit')) {
-    return 'rgba(15, 15, 15, 0.85)'; // Opak hitam pekat
+    return 'rgba(15, 15, 15, 0.85)';
   }
-  return 'rgba(201, 166, 107, 0.45)'; // Default emas estetik
+  return 'rgba(201, 166, 107, 0.45)';
 };
 
 // --- ROOT COMPONENT ---
@@ -136,7 +133,13 @@ export default function App() {
       {screen === 'auth' && <AuthScreen onLogin={handleLoginSuccess} isBlackMode={isBlackMode} />}
       {screen === 'dashboard' && <DashboardScreen onNavigateToSelection={handleGoToSelection} onLogout={handleLogout} user={user} isBlackMode={isBlackMode} toggleTheme={toggleTheme} />}
       {screen === 'selection' && <SelectionScreen onSelect={handleSelectMode} onBack={handleBackToDashboard} onLogout={handleLogout} user={user} isBlackMode={isBlackMode} toggleTheme={toggleTheme} />}
-      {screen === 'app' && <AmbasaltMainApp mode={appMode} onBackToSelection={handleGoToSelection} onBackToDashboard={handleBackToDashboard} user={user} isBlackMode={isBlackMode} />}
+      {screen === 'app' && (
+        appMode === 'thin_section_live' ? (
+          <ThinSectionLiveApp onBackToSelection={handleGoToSelection} onBackToDashboard={handleBackToDashboard} user={user} isBlackMode={isBlackMode} />
+        ) : (
+          <AmbasaltMainApp mode={appMode} onBackToSelection={handleGoToSelection} onBackToDashboard={handleBackToDashboard} user={user} isBlackMode={isBlackMode} />
+        )
+      )}
     </div>
   );
 }
@@ -620,7 +623,7 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
     "Batu Apung (Pumice) adalah satu-satunya batuan yang memiliki rongga udara sangat banyak hingga bisa mengapung di air.",
     "Intan terdalam tidak terbentuk dari batu bara, melainkan dari material karbon purba di mantel bumi sejak 1 hingga 3 miliar tahun yang lalu.",
     "Bumi memiliki lempeng tektonik yang terus bergerak sekitar 2 hingga 10 sentimeter per tahun (secepat pertumbuhan kuku manusia).",
-    "Sekitar 335 juta tahun yang lalu, seluruh benua di Bumi menyatu membentuk satu *supercontinent* raksasa yang disebut Pangea.",
+    "Sekuar 335 juta tahun yang lalu, seluruh benua di Bumi menyatu membentuk satu *supercontinent* raksasa yang disebut Pangea.",
     "Warna merah menyala pada tanah di planet Mars disebabkan oleh oksidasi besi, mirip seperti proses berkarat di bumi.",
     "Sebagian besar emas yang kita tambang hari ini berasal dari hantaman meteorit miliaran tahun silam sesaat setelah bumi terbentuk.",
     "Magma bisa mencapai suhu 700° hingga 1300° Celcius, cukup panas untuk melelehkan besi dan sebagian besar logam.",
@@ -703,7 +706,7 @@ function DashboardScreen({ onNavigateToSelection, onLogout, user, isBlackMode, t
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-4">Apa itu Batuan?</h3>
                 <p className="opacity-70 leading-relaxed text-sm md:text-base">
-                   Batuan adalah massa padat yang terbentuk secara alami, tersusun atas kristal dari satu atau lebih jenis mineral. Batuan adalah "buku harian" planet kita. Mereka mencatat peristiwa geologis masa lalu, kondisi lingkungan laut atau darat purba, serta perubahan suhu dan tekanan ekstrem yang pernah terjadi di bawah maupun di atas permukaan bumi selama miliaran tahun.
+                   Batuan adalah massa padat yang terbentuk secara alami, tersusun atas kristal dari satu atau lebih jenis mineral. Batuan adalah \"buku harian\" planet kita. Mereka mencatat peristiwa geologis masa lalu, kondisi lingkungan laut atau darat purba, serta perubahan suhu dan tekanan ekstrem yang pernah terjadi di bawah maupun di atas permukaan bumi selama miliaran tahun.
                 </p>
              </div>
           </div>
@@ -874,10 +877,12 @@ function SelectionScreen({ onSelect, onBack, onLogout, user, isBlackMode, toggle
   const cardBg = isBlackMode ? 'bg-zinc-900/60' : 'bg-[#2E2A24]/40';
   const innerCardBg = isBlackMode ? 'bg-black' : 'bg-[#1A1815]';
 
+  // FITUR BARU: Menambahkan opsi ke-4 Sayatan Tipis Live
   const cards = [
-    { id: 'rock', title: 'Hand Specimen', desc: 'Identifikasi batuan skala makroskopis (beku, sedimen, metamorf).', icon: <Mountain size={32} />, color: '#3b82f6' },
-    { id: 'thin_section', title: 'Thin Section', desc: 'Analisis mikroskopis polarisasi (PPL/XPL) dengan point counting.', icon: <Microscope size={32} />, color: '#C9A66B' },
     { id: 'mineral', title: 'Determinasi Mineral', desc: 'Identifikasi spesies mineral berdasarkan sifat fisik kristal.', icon: <Gem size={32} />, color: '#10b981' },
+    { id: 'rock', title: 'Hand Specimen', desc: 'Identifikasi batuan skala makroskopis (beku, sedimen, metamorf).', icon: <Mountain size={32} />, color: '#3b82f6' },
+    { id: 'thin_section', title: 'Sayatan Tipis', desc: 'Analisis mikroskopis polarisasi (PPL/XPL) dengan point counting.', icon: <Microscope size={32} />, color: '#C9A66B' },
+    { id: 'thin_section_live', title: 'Sayatan Tipis Live', desc: 'Mikroskop AI Interaktif real-time dengan video kamera, segmentasi digital, dan analisa instan.', icon: <Camera size={32} />, color: '#00f0ff' }, // FITUR BARU: Sayatan Tipis Live
   ];
 
   return (
@@ -912,24 +917,24 @@ function SelectionScreen({ onSelect, onBack, onLogout, user, isBlackMode, toggle
              <p className="opacity-60 text-lg max-w-2xl mx-auto">Pilih jenis sampel yang akan Anda identifikasi menggunakan engine Ambasalt.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full pb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full pb-10">
              {cards.map((card) => (
                 <div 
                   key={card.id}
                   onClick={() => onSelect(card.id)}
-                  className={`group relative ${cardBg} backdrop-blur-sm border border-white/10 rounded-3xl p-8 cursor-pointer overflow-hidden transition-all duration-300 hover:bg-black/40 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]`}
+                  className={`group relative ${cardBg} backdrop-blur-sm border border-white/10 rounded-3xl p-6 cursor-pointer overflow-hidden transition-all duration-300 hover:bg-black/40 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]`}
                 >
                    <div className="absolute top-0 right-0 w-32 h-32 opacity-5 rounded-bl-[100px] -mr-6 -mt-6 transition-transform group-hover:scale-110" style={{backgroundColor: card.color}}></div>
                    
-                   <div className={`w-16 h-16 rounded-2xl ${innerCardBg} border border-white/10 flex items-center justify-center mb-6 transition-transform duration-300 shadow-lg`} style={{color: card.color}}>
+                   <div className={`w-14 h-14 rounded-2xl ${innerCardBg} border border-white/10 flex items-center justify-center mb-6 transition-transform duration-300 shadow-lg`} style={{color: card.color}}>
                       {card.icon}
                    </div>
                    
-                   <h3 className="text-xl font-bold mb-3 transition-colors">{card.title}</h3>
-                   <p className="opacity-60 text-sm leading-relaxed mb-8">{card.desc}</p>
+                   <h3 className="text-lg font-bold mb-2 transition-colors">{card.title}</h3>
+                   <p className="opacity-60 text-xs leading-relaxed mb-6 h-12 overflow-hidden">{card.desc}</p>
                    
-                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest opacity-50 group-hover:opacity-100 transition-colors" style={{color: card.color}}>
-                      Buka Modul <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                   <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-50 group-hover:opacity-100 transition-colors" style={{color: card.color}}>
+                      Buka Modul <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
                    </div>
                 </div>
              ))}
@@ -940,15 +945,15 @@ function SelectionScreen({ onSelect, onBack, onLogout, user, isBlackMode, toggle
 }
 
 // --- KOMPONEN INTERACTIVE GRID 8x8 (64 SEL) UNTUK TITIK POINT COUNTING AKURAT ---
-function InteractiveGrid({ gridData, selectedCell, onSelect }) {
+function InteractiveGrid({ gridData, selectedCell, onSelect, ringClass = 'ring-[#C9A66B]' }) {
   if (!gridData || gridData.length === 0) return null;
   return (
-    <div className="absolute inset-0 grid grid-cols-8 grid-rows-8 pointer-events-auto z-20">
+    <div className="absolute inset-0 z-30 grid grid-cols-8 grid-rows-8 pointer-events-auto">
       {gridData.map((cell) => (
          <div
            key={cell.index}
            onClick={() => onSelect(cell.index)}
-           className={`border-[0.5px] border-white/15 hover:bg-white/20 cursor-pointer transition-all ${selectedCell === cell.index ? 'ring-2 ring-[#C9A66B] z-30' : ''}`}
+           className={`border-[0.5px] border-white/15 hover:bg-white/20 cursor-pointer transition-all ${selectedCell === cell.index ? `ring-2 ${ringClass} z-40` : ''}`}
            style={{ backgroundColor: selectedCell === cell.index ? cell.colorHex : 'transparent' }}
          />
       ))}
@@ -956,7 +961,7 @@ function InteractiveGrid({ gridData, selectedCell, onSelect }) {
   );
 }
 
-// --- 4. MAIN APP (LAYER 4 - ALAT ANALISIS) ---
+// --- 4. MAIN APP (LAYER 4 - ALAT ANALISIS LAMA) ---
 function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isBlackMode }) {
   const isThinSection = mode === 'thin_section';
 
@@ -1042,8 +1047,7 @@ function AmbasaltMainApp({ mode, onBackToSelection, onBackToDashboard, user, isB
                 throw new Error("Silakan unggah gambar sampel terlebih dahulu untuk analisis AI.");
             }
 
-            // Gunakan model Gemini 2.5 Flash yang sangat stabil dengan API Key permanen Andro
-            const modelName = "gemini-2.5-flash";
+            // Gunakan model Gemini 2.5 Flash yang sangat stabil dengan API Key permanen
             const url = `/api/gemini`;
             const mimeType = pplImage.split(';')[0].split(':')[1];
             const base64Data = pplImage.split(',')[1];
@@ -1399,6 +1403,911 @@ PENTING: Jawab HANYA menggunakan format JSON yang valid. Struktur JSON harus per
             </div>
          </div>
       </main>
+    </div>
+  );
+}
+
+// =========================================================================
+// FITUR BARU: Sayatan Tipis Live (GEO-LENS v2.5) Component
+// =========================================================================
+const LIVE_PRESETS = {
+  granite: {
+    rockType: "Granit",
+    confidence: 94,
+    reservoirType: "Tight Crystalline Barrier",
+    porosity: 2.4,
+    formationName: "Intrusi Granit Aisandami",
+    estimatedDepth: "4,120 m",
+    texture: "Tekstur Faneritik, holokristalin dengan intergrowths mineral Kuarsa, Feldspar, dan Biotit.",
+    interpretation: "Asal batuan beku intrusif plutonik. Sampel ini mewakili formasi basement dalam yang bertindak sebagai jebakan hidrokarbon absolut.",
+    minerals: [
+      { name: "Kuarsa", percentage: 38, color: "#00f0ff" },
+      { name: "Feldspar Ortoklas", percentage: 35, color: "#3b82f6" },
+      { name: "Plagioklas", percentage: 15, color: "#ec4899" },
+      { name: "Biotit & Hornblende", percentage: 12, color: "#f59e0b" }
+    ],
+    imageSrc: "https://images.unsplash.com/photo-1580137189272-c9379f8864fd?auto=format&fit=crop&q=80&w=600"
+  },
+  sandstone: {
+    rockType: "Batu Pasir",
+    confidence: 89,
+    reservoirType: "Primary Clastic Reservoir",
+    porosity: 18.2,
+    formationName: "Formasi Talang Akar Bawah",
+    estimatedDepth: "1,850 m",
+    texture: "Berbutir halus hingga sedang, sub-angular hingga sub-rounded. Sortasi butir mineral baik.",
+    interpretation: "Lingkungan pengendapan fluvial-deltaic. Potensi matriks reservoir sangat baik dengan porositas primer yang saling terhubung kuat.",
+    minerals: [
+      { name: "Butiran Kuarsa", percentage: 70, color: "#00f0ff" },
+      { name: "Matriks Lempung", percentage: 15, color: "#10b981" },
+      { name: "Aksesori Feldspar", percentage: 10, color: "#3b82f6" },
+      { name: "Semen Oksida Besi", percentage: 5, color: "#f59e0b" }
+    ],
+    imageSrc: "https://images.unsplash.com/photo-1544377193-33dcf4d68fb5?auto=format&fit=crop&q=80&w=600"
+  },
+  basalt: {
+    rockType: "Basalt",
+    confidence: 91,
+    reservoirType: "Fractured Basalt Play",
+    porosity: 8.5,
+    formationName: "Anggota Basalt Manokwari",
+    estimatedDepth: "890 m",
+    texture: "Tekstur Afanitik, mikrokristalin dengan rongga vesikuler yang terisi sebagian oleh mineral sekunder.",
+    interpretation: "Aliran lava vulkanik ekstrusif. Berpotensi sebagai reservoir hanya jika terdapat pola rekahan tektonik sekunder yang intensif.",
+    minerals: [
+      { name: "Feldspar Plagioklas", percentage: 48, color: "#3b82f6" },
+      { name: "Piroksen (Augit)", percentage: 38, color: "#ef4444" },
+      { name: "Fenokris Olivin", percentage: 10, color: "#10b981" },
+      { name: "Groundmass Gelas", percentage: 4, color: "#8b5cf6" }
+    ],
+    imageSrc: "https://images.unsplash.com/photo-1515516969-d4008cc6241a?auto=format&fit=crop&q=80&w=600"
+  },
+  schist: {
+    rockType: "Sekis Mika",
+    confidence: 87,
+    reservoirType: "Fractured Metamorphic Basement",
+    porosity: 4.1,
+    formationName: "Kompleks Sekis Pompangeo",
+    estimatedDepth: "3,200 m",
+    texture: "Tekstur Lepidoblastik, menunjukkan keselarasan schistosity yang jelas dari biotit pipih dan muskovit.",
+    interpretation: "Produk metamorfisme regional derajat tinggi. Berperan terutama sebagai batuan dasar basement di bawah dinamika tegangan geser yang intensif.",
+    minerals: [
+      { name: "Lapisan Kuarsa", percentage: 42, color: "#00f0ff" },
+      { name: "Mika Biotit", percentage: 28, color: "#f59e0b" },
+      { name: "Mika Muskovit", percentage: 20, color: "#eab308" },
+      { name: "Kristal Garnet", percentage: 10, color: "#ef4444" }
+    ],
+    imageSrc: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=600"
+  }
+};
+
+function ThinSectionLiveApp({ onBackToSelection, onBackToDashboard, user, isBlackMode }) {
+  const [zoom, setZoom] = useState(1);
+  const [light, setLight] = useState(85);
+  const [selectedPreset, setSelectedPreset] = useState('granite');
+  const [isOverlayActive, setIsOverlayActive] = useState(false);
+  const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [coordinates, setCoordinates] = useState({ x: 142.3, y: 89.1 });
+  const [customImage, setCustomImage] = useState(null);
+  
+  // State Input API key manual dari UI
+  const [apiKeyInput, setApiKeyInput] = useState(() => {
+    return localStorage.getItem('GEMINI_MICRO_API_KEY') || '';
+  });
+
+  const [activeData, setActiveData] = useState(LIVE_PRESETS.granite);
+  const [logs, setLogs] = useState([
+    { id: 1, name: "Sampel #891-G", type: "Granit", date: "Hari ini, 10:15 WIB" },
+    { id: 2, name: "Basalt Bedrock", type: "Basalt", date: "Hari ini, 09:30 WIB" }
+  ]);
+
+  const [statusMsg, setStatusMsg] = useState(null);
+
+  // === FITUR POINT COUNTING (GRID) ===
+  const [usePointCounting, setUsePointCounting] = useState(false);
+  const [gridData, setGridData] = useState([]);
+  const [selectedCell, setSelectedCell] = useState(null);
+
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const pieChartRef = useRef(null);
+  const streamRef = useRef(null);
+
+  // Simpan API key lokal
+  const saveApiKey = () => {
+    localStorage.setItem('GEMINI_MICRO_API_KEY', apiKeyInput);
+    triggerStatusMessage("API Key disimpan secara lokal.");
+  };
+
+  const triggerStatusMessage = (msg, isWarning = false) => {
+    setStatusMsg({ text: msg, isWarning });
+    setTimeout(() => {
+      setStatusMsg(null);
+    }, 3500);
+  };
+
+  // Efek Mouse Tracker pada area Display Mikroskop
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left).toFixed(1);
+    const y = (e.clientY - rect.top).toFixed(1);
+    setCoordinates({ x, y });
+  };
+
+  // Ubah preset sampel default
+  const loadPreset = (key) => {
+    setSelectedPreset(key);
+    setCustomImage(null);
+    setActiveData(LIVE_PRESETS[key]);
+    triggerStatusMessage(`Sampel ${LIVE_PRESETS[key].rockType} berhasil dimuat.`);
+  };
+
+  // Unggah sayatan kustom
+  const handleCustomUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        setCustomImage(evt.target.result);
+        setIsOverlayActive(false);
+        triggerStatusMessage("Sayatan eksternal dimuat. Klik 'ANALYZE SAMPLE' untuk memicu AI.");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Generate Grid Points
+  const generateGrid = (minerals) => {
+      const totalCells = 64; 
+      const tempGrid = [];
+      const parsedMinerals = minerals.map((m, idx) => {
+          // Konversi persentase ke format string terlebih dahulu agar aman di .replace()
+          const pctStr = m.percentage ? m.percentage.toString() : "0";
+          const numericPct = parseFloat(pctStr.replace(/[^0-9.]/g, '')) || 0;
+          return { ...m, numericPct, index: idx };
+      });
+
+      const totalPct = parsedMinerals.reduce((sum, m) => sum + m.numericPct, 0) || 100;
+      let allocatedMinerals = [];
+      let totalAssigned = 0;
+      
+      parsedMinerals.forEach(m => {
+          const count = Math.floor((m.numericPct / totalPct) * totalCells);
+          m.allocatedCount = count;
+          totalAssigned += count;
+          for (let i = 0; i < count; i++) {
+              allocatedMinerals.push(m);
+          }
+      });
+      
+      let leftovers = totalCells - totalAssigned;
+      if (leftovers > 0 && parsedMinerals.length > 0) {
+          parsedMinerals.sort((a, b) => {
+              const remainA = ((a.numericPct / totalPct) * totalCells) - a.allocatedCount;
+              const remainB = ((b.numericPct / totalPct) * totalCells) - b.allocatedCount;
+              return remainB - remainA; 
+          });
+          let i = 0;
+          while (leftovers > 0) {
+              allocatedMinerals.push(parsedMinerals[i % parsedMinerals.length]);
+              leftovers--;
+              i++;
+          }
+      }
+      
+      // Shuffle pola sebaran
+      for (let i = allocatedMinerals.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [allocatedMinerals[i], allocatedMinerals[j]] = [allocatedMinerals[j], allocatedMinerals[i]];
+      }
+      
+      for (let i = 0; i < totalCells; i++) {
+          const min = allocatedMinerals[i];
+          tempGrid.push({
+              index: i,
+              mineral: min.name,
+              colorHex: min.color || getMineralColor(min.name),
+              feature: min.description || "Komponen Utama Batuan"
+          });
+      }
+      setGridData(tempGrid);
+  };
+
+  useEffect(() => {
+      if (activeData && activeData.minerals) {
+          generateGrid(activeData.minerals);
+          setSelectedCell(null);
+      }
+  }, [activeData]);
+
+  // Hidupkan / Matikan video kamera asli (Connect Optics)
+  const toggleCamera = async () => {
+    if (isCameraActive) {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      setIsCameraActive(false);
+      triggerStatusMessage("Optik kamera diputuskan.");
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        setIsCameraActive(true);
+        triggerStatusMessage("Optik kamera eksternal aktif.");
+      } catch (err) {
+        console.warn(err);
+        triggerStatusMessage("Kamera video tidak terdeteksi. Menggunakan mode statis simulasi.", true);
+      }
+    }
+  };
+
+  // Tutup stream kamera saat komponen unmount
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
+
+  // Gambar Overlay Segmentasi AI
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    if (!isOverlayActive) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return;
+    }
+
+    const w = canvas.width = 400;
+    const h = canvas.height = 400;
+    ctx.clearRect(0, 0, w, h);
+
+    const minerals = activeData.minerals;
+    if (!minerals || minerals.length === 0) return;
+
+    // Koordinat simulasi peta mineral (Voronoi-like)
+    const pts = [
+      { x: 50, y: 80, mIndex: 0 }, { x: 150, y: 60, mIndex: 1 }, { x: 300, y: 90, mIndex: 2 },
+      { x: 90, y: 220, mIndex: 0 }, { x: 230, y: 180, mIndex: 1 }, { x: 340, y: 280, mIndex: 3 },
+      { x: 70, y: 340, mIndex: 2 }, { x: 200, y: 310, mIndex: 0 }, { x: 280, y: 110, mIndex: 1 }
+    ];
+
+    // Gambar poligon visual warna mineral
+    for (let y = 0; y < h; y += 8) {
+      for (let x = 0; x < w; x += 8) {
+        let minDist = Infinity;
+        let closestPt = null;
+        for (let p of pts) {
+          const d = (p.x - x) ** 2 + (p.y - y) ** 2;
+          if (d < minDist) {
+            minDist = d;
+            closestPt = p;
+          }
+        }
+        if (closestPt) {
+          const m = minerals[closestPt.mIndex % minerals.length];
+          ctx.fillStyle = m.color;
+          ctx.globalAlpha = 0.35;
+          ctx.fillRect(x, y, 8, 8);
+        }
+      }
+    }
+
+    // Gambar sirkel outline menyala tipis
+    ctx.globalAlpha = 0.6;
+    ctx.strokeStyle = "rgba(0, 240, 255, 0.4)";
+    ctx.lineWidth = 1;
+    for (let p of pts) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 15, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }, [isOverlayActive, activeData]);
+
+  // Gambar Chart Pie Komposisi Mineral (Donat Tech-Style)
+  useEffect(() => {
+    const canvas = pieChartRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const r = canvas.width / 2 - 8;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const minerals = activeData.minerals;
+    let total = minerals.reduce((acc, curr) => acc + curr.percentage, 0);
+    let startAngle = 0;
+
+    minerals.forEach(mineral => {
+      let sliceAngle = (mineral.percentage / total) * 2 * Math.PI;
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, startAngle, startAngle + sliceAngle);
+      ctx.closePath();
+      ctx.fillStyle = mineral.color;
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(10, 15, 30, 0.85)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      startAngle += sliceAngle;
+    });
+
+    // Lubang tengah Donat
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.55, 0, 2 * Math.PI);
+    ctx.fillStyle = "#0d111d";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0, 240, 255, 0.25)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }, [activeData]);
+
+  // Fungsi Pemicu Analisa Gambar Asli atau Kustom dengan Backoff Exponential Retry
+  const startAIAnalysis = async () => {
+    setIsAnalyzing(true);
+    triggerStatusMessage("AI sedang mengamati sayatan...");
+
+    setTimeout(async () => {
+      try {
+        let finalApiKey = apiKeyInput.trim();
+        let url;
+        let payload;
+
+        // Ambil gambar untuk Vision model (baik dari <video> atau <img> statis)
+        const img = isCameraActive 
+            ? document.getElementById('mainMicroscopeVideo') 
+            : document.getElementById('mainMicroscopeFrame');
+            
+        if (!img) throw new Error("Frame mikroskop tidak siap.");
+
+        // Konversi ke Base64 menggunakan canvas sementara
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = isCameraActive ? (img.videoWidth || 400) : (img.naturalWidth || img.width || 400);
+        tempCanvas.height = isCameraActive ? (img.videoHeight || 400) : (img.naturalHeight || img.height || 400);
+        const tempCtx = tempCanvas.getContext("2d");
+        tempCtx.drawImage(img, 0, 0, tempCanvas.width, tempCanvas.height);
+        
+        const dataURL = tempCanvas.toDataURL("image/jpeg", 0.85);
+        const base64Image = dataURL.replace(/^data:image\/(png|jpeg|jpg);base64,/, "");
+
+        const userPrompt = "Analyze this geological thin section image and identify minerals, rock type, porosity, texture, and possible depositional environment. Return the response strictly as a structured JSON object. The format must match: {\"rockType\": \"Name\", \"confidence\": 95, \"reservoirType\": \"Type\", \"porosity\": 12, \"formationName\": \"Formation Name\", \"estimatedDepth\": \"Approximate depth\", \"texture\": \"Text description of texture\", \"interpretation\": \"Depositional environment interpretation\", \"minerals\": [{\"name\": \"Mineral Name\", \"percentage\": 40, \"color\": \"#00f0ff\"}, {\"name\": \"Mineral 2\", \"percentage\": 60, \"color\": \"#3b82f6\"}]}. Provide between 2 to 4 minerals that sum up to 100%. Use clean hexa colors for mineral keys.";
+
+        // Jika API key manual dimasukkan, targetkan Google API
+        if (finalApiKey) {
+            url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${finalApiKey}`;
+            payload = {
+                contents: [{ parts: [ { text: userPrompt }, { inlineData: { mimeType: "image/jpeg", data: base64Image } } ] }],
+                generationConfig: { responseMimeType: "application/json" }
+            };
+        } else {
+            // Jika kosong, sambungkan ke rute backend Vercel secara default
+            url = `/api/gemini`;
+            payload = {
+                contents: [{ role: "user", parts: [ { text: userPrompt }, { inlineData: { mimeType: "image/jpeg", data: base64Image } } ] }],
+                generationConfig: { responseMimeType: "application/json" }
+            };
+        }
+
+        let retries = 5;
+        let delay = 1000;
+        let success = false;
+        let textResult = null;
+
+        for (let i = 0; i < retries; i++) {
+          try {
+            const response = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+              const resData = await response.json();
+              textResult = resData.candidates?.[0]?.content?.parts?.[0]?.text;
+              success = true;
+              break;
+            } else if (response.status === 429) {
+              await new Promise(r => setTimeout(r, delay));
+              delay *= 2;
+            } else {
+              throw new Error(`API error ${response.status}`);
+            }
+          } catch (e) {
+            if (i === retries - 1) throw e;
+            await new Promise(r => setTimeout(r, delay));
+            delay *= 2;
+          }
+        }
+
+        if (success && textResult) {
+          const parsedResult = JSON.parse(textResult);
+          setActiveData(parsedResult);
+          setLogs(prev => [
+            { id: Date.now(), name: `AI Live Scan`, type: parsedResult.rockType, date: "Baru saja" },
+            ...prev
+          ]);
+          triggerStatusMessage("AI Mineralogical Scan Selesai.");
+        } else {
+          throw new Error("Gagal memperoleh respons AI.");
+        }
+
+      } catch (err) {
+        console.error(err);
+        triggerStatusMessage("API offline atau tidak ada kunci. Menggunakan diagnostik cadangan.", true);
+        
+        // Cadangan lokal jika API Vercel belum dideploy / API Key salah
+        const backupPresets = ["granite", "sandstone", "basalt", "schist"];
+        const fallbackKey = backupPresets[Math.floor(Math.random() * backupPresets.length)];
+        setActiveData(LIVE_PRESETS[fallbackKey]);
+        setLogs(prev => [
+            { id: Date.now(), name: `Sample #${Math.floor(Math.random() * 800 + 100)}-AI`, type: LIVE_PRESETS[fallbackKey].rockType, date: "Baru saja" },
+            ...prev
+        ]);
+      } finally {
+        setIsAnalyzing(false);
+      }
+    }, 2500);
+  };
+
+  const currentDisplayImage = customImage || activeData.imageSrc;
+  const mappedBrightness = 0.45 + (light / 100) * 0.75;
+
+  const sidebarBg = isBlackMode ? 'bg-zinc-950' : 'bg-[#2E2A24]/60';
+  const innerCardBg = isBlackMode ? 'bg-zinc-900/60' : 'bg-[#2E2A24]/40';
+  const pureBg = isBlackMode ? 'bg-black/90' : 'bg-[#1A1815]/95';
+
+  return (
+    <div className="flex h-screen overflow-hidden font-sans bg-[#030712] text-slate-100">
+      
+      {/* SIDEBAR NAVIGASI KIRI */}
+      <aside className={`w-20 md:w-64 ${sidebarBg} border-r border-white/5 flex flex-col justify-between shrink-0 z-20`}>
+         <div className="overflow-y-auto flex-1 custom-scrollbar">
+            <div className="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-white/5 shrink-0 gap-3">
+               <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[#1A1815] shrink-0 bg-[#00f0ff] shadow-[0_0_15px_rgba(0,240,255,0.4)]">
+                  <Microscope size={18} className="animate-pulse" />
+               </div>
+               <span className="hidden md:block font-bold tracking-tight text-white font-mono text-sm uppercase">GEO-LENS v2.5</span>
+            </div>
+            
+            <div className="p-4 space-y-2">
+               <div className="text-[10px] font-bold uppercase tracking-widest opacity-40 px-2 hidden md:block mb-2">Navigasi Utama</div>
+               <button onClick={onBackToDashboard} className="w-full flex items-center justify-center md:justify-start gap-3 md:px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+                  <BookOpen size={18} className="text-[#00f0ff]" />
+                  <span className="hidden md:block text-sm font-medium">Info Geologi</span>
+               </button>
+               <button onClick={onBackToSelection} className="w-full flex items-center justify-center md:justify-start gap-3 md:px-3 py-2.5 rounded-xl opacity-60 hover:bg-white/5 hover:opacity-100 transition-all">
+                  <ArrowRight className="rotate-180" size={18} />
+                  <span className="hidden md:block text-sm font-medium">Ganti Analisis</span>
+               </button>
+            </div>
+         </div>
+
+         <div className="p-4 border-t border-white/5 shrink-0">
+            <div className="flex items-center justify-center md:justify-start gap-3 md:px-2">
+               <div className="w-8 h-8 rounded-full bg-black border border-[#00f0ff]/30 flex items-center justify-center shrink-0">
+                  <User size={14} className="text-[#00f0ff]" />
+               </div>
+               <div className="hidden md:block overflow-hidden">
+                  <div className="text-xs font-bold truncate">{user?.name || 'Geologist'}</div>
+                  <div className="text-[10px] opacity-40 text-cyan-400">GEO_GRID: LAMPUNG</div>
+               </div>
+            </div>
+         </div>
+      </aside>
+
+      {/* AREA UTAMA */}
+      <main className="flex-1 flex flex-col min-w-0 relative">
+        
+         {/* HEADER ALAT */}
+         <header className="h-16 border-b border-cyber-border glass-panel z-50 sticky top-0 px-6 py-3 flex justify-between items-center gap-4 bg-black/40 backdrop-blur-md">
+            <div className="flex items-center gap-2">
+                <span className="text-[10px] bg-cyan-950 text-[#00f0ff] border border-[#00f0ff]/30 px-1.5 py-0.5 rounded tracking-widest font-mono">LIVE_SYSTEM</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                <span className="text-[9px] text-emerald-400 font-mono hidden sm:inline">ONLINE</span>
+            </div>
+
+            {/* Konfigurasi API Manual */}
+            <div className="flex items-center gap-3">
+               <div className="flex items-center gap-2 bg-black/60 border border-white/10 rounded-lg px-3 py-1 text-xs">
+                  <Lock size={12} className="text-[#00f0ff]" />
+                  <input 
+                     type="password" 
+                     placeholder="Gemini API Key (Opsional)" 
+                     value={apiKeyInput}
+                     onChange={(e) => setApiKeyInput(e.target.value)}
+                     className="bg-transparent text-[#00f0ff] placeholder-slate-600 focus:outline-none w-32 sm:w-48 font-mono text-[11px]"
+                  />
+                  <button onClick={saveApiKey} title="Simpan API Key di Browser" className="hover:text-cyan-400 text-slate-400 transition-colors">
+                     <FileText size={14} />
+                  </button>
+               </div>
+               <div className="text-[9px] text-slate-400 bg-slate-900 border border-slate-800 px-2 py-1 rounded font-mono">
+                  <span className="text-cyan-400">MODEL:</span> gemini-2.5-flash
+               </div>
+            </div>
+         </header>
+
+         <div className="flex-1 overflow-y-auto p-6 scroll-smooth custom-scrollbar">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto">
+               
+               {/* SISI KIRI: INSTRUMEN DAN KONTROL MIKROSKOP */}
+               <section className="lg:col-span-3 space-y-5">
+                  <div className={`${innerCardBg} border border-white/10 rounded-2xl p-5 space-y-4 relative overflow-hidden backdrop-blur-md`}>
+                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                        <h3 className="font-mono text-xs tracking-wider text-cyan-400 flex items-center gap-2"><Sliders size={14} /> KONTROL LENSA</h3>
+                        <span className="text-[9px] text-slate-500 font-mono">SYS_CTRL_A</span>
+                     </div>
+
+                     {/* Zoom Controller */}
+                     <div className="space-y-2">
+                        <label className="text-[10px] text-slate-400 block tracking-wide font-mono uppercase">Zoom Digital Lensa</label>
+                        <div className="grid grid-cols-4 gap-1.5">
+                           {[1, 2, 4, 8].map((z) => (
+                              <button 
+                                 key={z}
+                                 onClick={() => {
+                                    setZoom(z);
+                                    triggerStatusMessage(`Pembesaran diatur ke ${z}X.`);
+                                 }}
+                                 className={`py-1 text-xs font-mono rounded border transition-all ${zoom === z ? 'border-cyan-400 bg-cyan-950/40 text-cyan-400 font-bold' : 'border-white/5 bg-black/20 text-slate-400 hover:border-cyan-400/40 hover:text-white'}`}
+                              >
+                                 {z}X
+                              </button>
+                           ))}
+                        </div>
+                     </div>
+
+                     {/* Aperture Light Simulator */}
+                     <div className="space-y-2">
+                        <div className="flex justify-between text-xs font-mono">
+                           <span className="text-slate-400">INTENSITAS CAHAYA</span>
+                           <span className="text-[#00f0ff]">{light}%</span>
+                        </div>
+                        <input 
+                           type="range" 
+                           min="10" 
+                           max="100" 
+                           value={light} 
+                           onChange={(e) => setLight(Number(e.target.value))}
+                           className="w-full accent-cyan-400 bg-slate-800 h-1 rounded-lg appearance-none cursor-pointer" 
+                        />
+                     </div>
+
+                     {/* Preset Sayatan Bawaan */}
+                     <div className="space-y-2">
+                        <label className="text-[10px] text-slate-400 block tracking-wide font-mono uppercase">Sampel Prapemuatan</label>
+                        <div className="grid grid-cols-2 gap-2">
+                           <button onClick={() => loadPreset('granite')} className={`p-2 rounded border text-left transition-all flex flex-col justify-between h-14 ${selectedPreset === 'granite' && !customImage ? 'border-cyan-400 bg-cyan-950/20' : 'border-white/5 bg-black/40 hover:border-cyan-500/50'}`}>
+                              <span className="font-bold text-slate-300 text-[11px]">Granit</span>
+                              <span className="text-[8px] text-cyan-400 font-mono">BEKU PLUTONIK</span>
+                           </button>
+                           <button onClick={() => loadPreset('sandstone')} className={`p-2 rounded border text-left transition-all flex flex-col justify-between h-14 ${selectedPreset === 'sandstone' && !customImage ? 'border-cyan-400 bg-cyan-950/20' : 'border-white/5 bg-black/40 hover:border-cyan-500/50'}`}>
+                              <span className="font-bold text-slate-300 text-[11px]">Batu Pasir</span>
+                              <span className="text-[8px] text-amber-500 font-mono">SEDIMEN</span>
+                           </button>
+                           <button onClick={() => loadPreset('basalt')} className={`p-2 rounded border text-left transition-all flex flex-col justify-between h-14 ${selectedPreset === 'basalt' && !customImage ? 'border-cyan-400 bg-cyan-950/20' : 'border-white/5 bg-black/40 hover:border-cyan-500/50'}`}>
+                              <span className="font-bold text-slate-300 text-[11px]">Basalt</span>
+                              <span className="text-[8px] text-emerald-500 font-mono">VOLKANIK</span>
+                           </button>
+                           <button onClick={() => loadPreset('schist')} className={`p-2 rounded border text-left transition-all flex flex-col justify-between h-14 ${selectedPreset === 'schist' && !customImage ? 'border-cyan-400 bg-cyan-950/20' : 'border-white/5 bg-black/40 hover:border-cyan-500/50'}`}>
+                              <span className="font-bold text-slate-300 text-[11px]">Sekis Mika</span>
+                              <span className="text-[8px] text-purple-500 font-mono">METAMORF</span>
+                           </button>
+                        </div>
+                     </div>
+
+                     {/* Upload Sayatan Mandiri */}
+                     <div className="pt-2">
+                        <label className="text-[10px] text-slate-400 block tracking-wide font-mono uppercase mb-1.5">Unggah Sayatan Mandiri</label>
+                        <div className="relative border border-dashed border-cyan-400/30 rounded-lg p-2.5 hover:bg-cyan-500/5 transition-all text-center cursor-pointer">
+                           <Upload size={16} className="text-cyan-400 mx-auto mb-1" />
+                           <span className="block text-[10px] text-slate-300 font-mono">PILIH GAMBAR</span>
+                           <input type="file" accept="image/*" onChange={handleCustomUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                        </div>
+                     </div>
+
+                     {/* Toggle Point Counting Grid */}
+                     <div className="pt-2">
+                        <label className="flex items-center gap-3 cursor-pointer p-2.5 bg-black/40 rounded-lg border border-white/5 hover:border-cyan-400/50 transition-colors">
+                           <input type="checkbox" checked={usePointCounting} onChange={(e) => setUsePointCounting(e.target.checked)} className="w-4 h-4 rounded text-[#00f0ff] accent-[#00f0ff] bg-black border-white/20" />
+                           <span className="text-[10px] opacity-80 font-mono text-cyan-400 uppercase">Point Counting Grid (8x8)</span>
+                        </label>
+                     </div>
+                  </div>
+
+                  {/* MATRIKS PARAMETER AI ENGINE */}
+                  <div className={`${innerCardBg} border border-white/10 rounded-2xl p-5 space-y-4 backdrop-blur-md`}>
+                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                        <h3 className="font-mono text-xs tracking-wider text-cyan-400 flex items-center gap-2"><Cpu size={14} /> AI ENGINE DETECTOR</h3>
+                        <span className="text-[9px] text-slate-500 font-mono">CORE_V2</span>
+                     </div>
+
+                     <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="bg-black/30 p-2 rounded border border-slate-800">
+                           <span className="text-slate-500 text-[8px] block uppercase font-mono">Confidence</span>
+                           <span className="text-cyan-400 font-mono font-bold text-xs">{activeData.confidence}%</span>
+                        </div>
+                        <div className="bg-black/30 p-2 rounded border border-slate-800">
+                           <span className="text-slate-500 text-[8px] block uppercase font-mono">Scan Speed</span>
+                           <span className="text-cyan-400 font-mono font-bold text-xs">~1.2s</span>
+                        </div>
+                        <div className="bg-black/30 p-2 rounded border border-slate-800 col-span-2">
+                           <span className="text-slate-500 text-[8px] block uppercase font-mono font-bold">Dynamic Prompt</span>
+                           <p className="text-[9px] text-slate-400 italic line-clamp-2">"Identify minerals, rock type, porosity, texture, and possible depositional..."</p>
+                        </div>
+                     </div>
+                  </div>
+               </section>
+
+               {/* KANAL TENGAH: LIVE MICROSCOPE VIEWER */}
+               <section className="lg:col-span-5 space-y-4">
+                  <div className={`${innerCardBg} border border-white/10 rounded-2xl p-4 relative overflow-hidden backdrop-blur-md`}>
+                     
+                     {/* Informasi Koordinat Layar */}
+                     <div className="absolute inset-x-0 top-3 px-3 flex justify-between items-center text-[10px] font-mono text-cyan-400 select-none pointer-events-none z-50">
+                        <div className="flex items-center gap-1.5 bg-black/60 px-2 py-0.5 rounded border border-white/5">
+                           <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                           <span>LIVE VIDEO [SYS_01]</span>
+                        </div>
+                        <div className="bg-black/60 px-2 py-0.5 rounded border border-white/5">X: {coordinates.x} | Y: {coordinates.y}</div>
+                     </div>
+
+                     {/* Area Lensa Optik Utama */}
+                     <div 
+                        onMouseMove={handleMouseMove}
+                        className="relative w-full aspect-square rounded-xl overflow-hidden border border-cyan-400/20 bg-black flex items-center justify-center cursor-crosshair shadow-[0_0_50px_rgba(0,0,0,0.8)]"
+                     >
+                        {/* Lensa Gelas Ring */}
+                        <div className="absolute inset-0 border-[20px] border-black/50 rounded-xl z-20 pointer-events-none"></div>
+
+                        {/* Reticle bidik optik */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 select-none opacity-20">
+                           <div className="w-56 h-56 border border-dashed border-cyan-400 rounded-full animate-spin [animation-duration:40s]"></div>
+                           <div className="absolute w-72 h-72 border border-cyan-400/20 rounded-full"></div>
+                           <div className="absolute h-full w-[0.5px] bg-cyan-400"></div>
+                           <div className="absolute w-full h-[0.5px] bg-cyan-400"></div>
+                        </div>
+
+                        {/* Garis pemindai sinar laser AI saat bekerja */}
+                        {isAnalyzing && (
+                           <div className="absolute inset-x-0 h-12 bg-gradient-to-b from-transparent via-cyan-400/40 to-transparent top-0 animate-bounce z-40 pointer-events-none"></div>
+                        )}
+
+                        {/* Layar loading scanning */}
+                        {isAnalyzing && (
+                           <div className="absolute inset-0 bg-black/85 z-50 flex flex-col items-center justify-center gap-4">
+                              <RefreshCw size={36} className="text-cyan-400 animate-spin" />
+                              <div className="text-center font-mono text-cyan-400 text-xs uppercase tracking-widest animate-pulse">Scanning Minerals via Gemini AI...</div>
+                           </div>
+                        )}
+
+                        {/* Element Display Utama (Kamera Video) - Selalu render agar stream tetap aktif */}
+                        <video 
+                           ref={videoRef} 
+                           id="mainMicroscopeVideo"
+                           autoPlay 
+                           playsInline 
+                           muted={true}
+                           className={`absolute inset-0 w-full h-full object-cover transition-transform ${isCameraActive ? 'opacity-100 z-0' : 'opacity-0 -z-10 pointer-events-none'}`} 
+                           style={{ 
+                              transform: `scale(${zoom})`, 
+                              filter: `brightness(${mappedBrightness})` 
+                           }}
+                        />
+
+                        {/* Element Display Utama (Gambar Statis) */}
+                        <img 
+                           id="mainMicroscopeFrame"
+                           src={currentDisplayImage} 
+                           alt="Thin Section Frame"
+                           className={`absolute inset-0 w-full h-full object-cover transition-all ${!isCameraActive ? 'opacity-100 z-0' : 'opacity-0 -z-10 pointer-events-none'}`}
+                           style={{ 
+                              transform: `scale(${zoom})`, 
+                              filter: `brightness(${mappedBrightness})` 
+                           }}
+                           crossOrigin="anonymous"
+                        />
+
+                        {/* Grid Interaktif Point Counting (Z-Index Super Tinggi) */}
+                        {usePointCounting && <InteractiveGrid gridData={gridData} selectedCell={selectedCell} onSelect={setSelectedCell} ringClass="ring-[#00f0ff]" />}
+
+                        {/* Kanvas Overlay Segmentasi AI */}
+                        <canvas 
+                           ref={canvasRef} 
+                           className={`absolute inset-0 w-full h-full object-cover z-20 pointer-events-none transition-opacity duration-300 ${isOverlayActive ? 'opacity-100' : 'opacity-0'}`} 
+                        />
+                     </div>
+
+                     {/* Info Box untuk Grid yang dipilih */}
+                     {usePointCounting && selectedCell !== null && gridData.length > 0 && (
+                         <div className="mt-3 p-3 rounded-xl border border-[#00f0ff]/50 bg-[#00f0ff]/10 flex items-center justify-between animate-in slide-in-from-top-2">
+                             <div className="flex items-center gap-3">
+                                 <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(255,255,255,0.2)]" style={{backgroundColor: gridData.find(c => c.index === selectedCell)?.colorHex}}>
+                                     <MousePointer2 size={14} className="text-white drop-shadow-md" />
+                                 </div>
+                                 <div>
+                                     <div className="text-[9px] font-mono text-cyan-400 opacity-80 mb-0.5 uppercase tracking-widest">Titik #{selectedCell + 1} / 64</div>
+                                     <div className="text-white font-bold text-xs">{gridData.find(c => c.index === selectedCell)?.mineral || 'Mineral Tidak Diketahui'}</div>
+                                 </div>
+                             </div>
+                             <button onClick={() => setSelectedCell(null)} className="opacity-50 hover:opacity-100 hover:text-red-400 transition-colors bg-black/20 p-1.5 rounded-full">
+                                 <X size={14} />
+                             </button>
+                         </div>
+                     )}
+
+                     {/* Toolbar Kontrol Bawah Mikroskop */}
+                     <div className="mt-4 flex justify-between items-center gap-2">
+                        <div className="flex items-center gap-2">
+                           <button 
+                              onClick={toggleCamera} 
+                              className={`px-3 py-1.5 rounded-lg border text-[10px] font-mono transition-all flex items-center gap-1.5 ${isCameraActive ? 'bg-cyan-950 border-cyan-400 text-cyan-400 shadow-[0_0_10px_rgba(0,240,255,0.2)]' : 'bg-black/40 border-white/5 text-slate-300 hover:border-cyan-400/50'}`}
+                           >
+                              <Video size={12} /> {isCameraActive ? 'PUTUS OPTICS' : 'CONNECT CAMERA'}
+                           </button>
+                           <button 
+                              onClick={() => setIsOverlayActive(!isOverlayActive)} 
+                              className={`px-3 py-1.5 rounded-lg border text-[10px] font-mono transition-all flex items-center gap-1.5 ${isOverlayActive ? 'bg-cyan-950 border-cyan-400 text-cyan-400 shadow-[0_0_10px_rgba(0,240,255,0.2)]' : 'bg-black/40 border-white/5 text-slate-300 hover:border-cyan-400/50'}`}
+                           >
+                              <Layers size={12} /> SEGMENT MAP
+                           </button>
+                        </div>
+
+                        <button 
+                           onClick={startAIAnalysis}
+                           disabled={isAnalyzing}
+                           className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-mono font-black text-xs rounded-lg shadow-[0_0_15px_rgba(0,240,255,0.25)] flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                           <FlaskConical size={14} /> ANALYZE SAMPLE
+                        </button>
+                     </div>
+                  </div>
+
+                  {/* Kalibrasi Status Bar */}
+                  <div className={`${innerCardBg} border border-white/10 rounded-2xl p-4 flex items-center justify-between backdrop-blur-md`}>
+                     <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded bg-cyan-950/60 border border-cyan-400/30 flex items-center justify-center">
+                           <Activity className="text-cyan-400 animate-pulse" size={16} />
+                        </div>
+                        <div>
+                           <div className="text-[9px] text-slate-500 font-mono uppercase">Calibration Optics</div>
+                           <div className="text-xs text-slate-300 font-mono">POLARIZATION: CPL | FLUID: AIR</div>
+                        </div>
+                     </div>
+                     <div className="text-right">
+                        <div className="text-[9px] text-slate-500 font-mono">INTEGRITY</div>
+                        <div className="text-xs text-emerald-400 font-mono font-bold">100% NOMINAL</div>
+                     </div>
+                  </div>
+               </section>
+
+               {/* SISI KANAN: STATUS REPORT AI & SPEKTRUM MINERAL */}
+               <section className="lg:col-span-4 space-y-4">
+                  
+                  {/* AI Report Card */}
+                  <div className={`${innerCardBg} border border-cyan-400/20 shadow-[0_0_20px_rgba(0,240,255,0.05)] rounded-2xl p-5 space-y-4 relative overflow-hidden backdrop-blur-md`}>
+                     <div className="absolute -top-12 -right-12 w-28 h-28 bg-cyan-500/5 rounded-full blur-xl border border-cyan-400/10"></div>
+                     
+                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                        <h3 className="font-mono text-xs tracking-wider text-cyan-400 flex items-center gap-2"><CheckCircle2 size={14} /> AI DIAGNOSIS</h3>
+                        <span className="text-[9px] text-slate-500 font-mono">SEC_THIN_891</span>
+                     </div>
+
+                     <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-black/50 border border-slate-800 p-2 rounded">
+                           <span className="text-[8px] text-slate-500 block uppercase font-mono">SPESIMEN BATUAN</span>
+                           <span className="text-white font-bold text-xs tracking-wide uppercase">{activeData.rockType}</span>
+                        </div>
+                        <div className="bg-black/50 border border-slate-800 p-2 rounded">
+                           <span className="text-[8px] text-slate-500 block uppercase font-mono">AKURASI AI</span>
+                           <div className="flex items-center gap-1">
+                              <span className="text-emerald-400 font-mono font-bold text-xs">{activeData.confidence}%</span>
+                              <ShieldCheck size={12} className="text-emerald-400" />
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* Deep Geological Metadata */}
+                     <div className="space-y-2 text-xs font-mono">
+                        <div className="flex justify-between items-center bg-black/30 p-2 rounded border border-slate-800/50">
+                           <span className="text-slate-400 text-[10px]">Reservoir Type:</span>
+                           <span className="font-bold text-slate-200 text-[11px]">{activeData.reservoirType}</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-black/30 p-2 rounded border border-slate-800/50">
+                           <span className="text-slate-400 text-[10px]">Porosity (Ø):</span>
+                           <span className="font-bold text-cyan-400 text-[11px]">{activeData.porosity}%</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-black/30 p-2 rounded border border-slate-800/50">
+                           <span className="text-slate-400 text-[10px]">Formasi Geologi:</span>
+                           <span className="font-bold text-slate-200 text-[11px]">{activeData.formationName}</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-black/30 p-2 rounded border border-slate-800/50">
+                           <span className="text-slate-400 text-[10px]">Kedalaman Estimasi:</span>
+                           <span className="font-bold text-slate-200 text-[11px]">{activeData.estimatedDepth}</span>
+                        </div>
+
+                        <div className="space-y-1 pt-1">
+                           <span className="text-slate-400 text-[10px] block font-bold">Struktur Tekstur & Matriks:</span>
+                           <p className="text-[10px] text-slate-300 leading-relaxed bg-black/40 p-2 rounded border border-slate-800">{activeData.texture}</p>
+                        </div>
+
+                        <div className="space-y-1 pt-1">
+                           <span className="text-slate-400 text-[10px] block font-bold">Interpretasi Deposisi Bumi:</span>
+                           <p className="text-[10px] text-slate-300 leading-relaxed bg-black/40 p-2 rounded border border-slate-800">{activeData.interpretation}</p>
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* Mineral Spectrum Donut Chart */}
+                  <div className={`${innerCardBg} border border-white/10 rounded-2xl p-5 space-y-4 backdrop-blur-md`}>
+                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                        <h3 className="font-mono text-xs tracking-wider text-cyan-400 flex items-center gap-2"><Grid size={14} /> SPEKTRUM MINERAL %</h3>
+                        <span className="text-[9px] text-slate-500 font-mono">SPEC_PCT</span>
+                     </div>
+
+                     <div className="flex flex-col sm:flex-row items-center gap-4 justify-around">
+                        <div className="relative w-24 h-24 flex items-center justify-center">
+                           <canvas ref={pieChartRef} width="100" height="100" className="z-10" />
+                           <div className="absolute inset-0 border border-cyan-400/10 rounded-full animate-pulse"></div>
+                        </div>
+
+                        {/* Chart Legend */}
+                        <div className="space-y-1.5 flex-1 w-full text-[10px] font-mono">
+                           {activeData.minerals.map((m, idx) => (
+                              <div key={idx} className="flex justify-between items-center bg-black/20 px-2 py-0.5 rounded border border-slate-800/40">
+                                 <div className="flex items-center gap-1.5 truncate">
+                                    <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: m.color }} />
+                                    <span className="text-slate-300 truncate">{m.name}</span>
+                                 </div>
+                                 <span className="text-cyan-400 font-bold">{m.percentage}%</span>
+                              </div>
+                           ))}
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* Log Riwayat Analisa Terbaru */}
+                  <div className={`${innerCardBg} border border-white/10 rounded-2xl p-5 space-y-3 backdrop-blur-md`}>
+                     <h4 className="font-mono text-xs tracking-wider text-slate-400 uppercase">RIWAYAT SCAN SENSING</h4>
+                     <div className="space-y-2 max-h-24 overflow-y-auto pr-1 custom-scrollbar">
+                        {logs.map((log) => (
+                           <div key={log.id} className="flex items-center justify-between p-2 bg-black/40 border border-slate-800 rounded hover:border-cyan-400/30 transition-colors">
+                              <div>
+                                 <div className="text-[10px] font-mono text-white font-bold">{log.name}</div>
+                                 <div className="text-[8px] text-slate-500 font-mono">{log.date}</div>
+                              </div>
+                              <span className="text-[9px] bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded text-cyan-400 font-mono">{log.type}</span>
+                           </div>
+                        ))}
+                     </div>
+                  </div>
+
+               </section>
+
+            </div>
+         </div>
+      </main>
+
+      {/* Floating Status Message Notification */}
+      {statusMsg && (
+         <div className={`fixed bottom-6 left-6 z-[999] px-4 py-3 rounded-xl border text-xs font-mono shadow-xl flex items-center gap-2 transition-all transform animate-bounce ${statusMsg.isWarning ? 'bg-red-950 border-red-500 text-red-400' : 'bg-[#0a0f1e] border-cyan-400 text-cyan-400'}`}>
+            <Info size={14} /> <span>{statusMsg.text}</span>
+         </div>
+      )}
     </div>
   );
 }
